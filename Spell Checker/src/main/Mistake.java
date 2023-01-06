@@ -1,3 +1,4 @@
+package main;
 public class Mistake implements Comparable<Mistake>{
 	public String wrongword;
 	public Parser origin;
