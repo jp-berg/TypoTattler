@@ -32,14 +32,6 @@ public class Mistake implements Comparable<Mistake>{
 		return true;
 	}
 	
-	public void invalidateAll() {
-		Mistake m = this;
-		while(m.next != null) {
-			m = m.next;
-			m.valid = false;
-		}
-	}
-	
 	private void passOnSuggestions() {
 		this.getSuggestions();
 		Mistake m = this;
@@ -63,6 +55,15 @@ public class Mistake implements Comparable<Mistake>{
 		System.out.println("No suggestions available.");
 		return false;
 		
+	}
+	
+	public void invalidateAll() {
+		Mistake m = this;
+		do {
+			m.valid = false;
+			m = m.next;
+		}
+		while(m != null);
 	}
 	
 	@Override
