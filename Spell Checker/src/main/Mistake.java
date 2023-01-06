@@ -97,7 +97,7 @@ public class Mistake implements Comparable<Mistake> {
 			for(i = 0; i < suggestions.length -1;i++) {
 				sb.append(String.format("(%d) - %s | ", i +1, suggestions[i]));
 			}
-			sb.append(String.format("(%d) - %s", i +1, suggestions[i]));
+			sb.append(String.format("(%d) - %s", i +1, suggestions[i])); /* Without '|' at the end*/
 			System.out.println(sb);
 			return true;
 		}
