@@ -44,18 +44,13 @@ public class TypoTattler {
 		if(args.length == 2) {
 			args[1]  = expandUser(args[1]);
 			dict = Paths.get(args[1]);
-			if(!Files.exists(dict)) {
-				System.err.println("Dictionary does not exist. Fallback to default.");
+			try {
+				Checker checker = new Checker(dict);
+				p = new Parser(toEdit, checker);
+			} catch (IOException e) {
+				System.err.printf("Invalid dictionary file: %s\nFallback to default.\n", dict);
 				dict = null;
-			} else {
-				try {
-					Checker checker = new Checker(dict);
-					p = new Parser(toEdit, checker);
-				} catch (IOException e) {
-					System.err.println("Invalid dictionary file. Fallback to default.");
-					dict = null;
-					p = null;
-				}
+				p = null;
 			}
 		}
 		
