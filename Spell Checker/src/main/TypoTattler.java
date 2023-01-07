@@ -166,8 +166,6 @@ public class TypoTattler {
 			if(writetodisk) {
 				w2d();
 			}
-			
-			System.out.println("Exiting...");
 		}
 	
 	private void replace(Mistake m, String replacement) {

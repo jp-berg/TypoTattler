@@ -53,6 +53,8 @@ public class Runner {
 		}
 		
 		tt.mainloop();
+		
+		System.out.println("Exiting...");
 	}
 
 }
