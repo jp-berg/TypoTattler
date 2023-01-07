@@ -22,6 +22,10 @@ public class TypoTattler {
 	private final Path DICT = Paths.get(System.getProperty("user.home"), "dict.txt");
 	private final String OPTIONS = "(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit\n";
 	
+	public static String expandUser(String path) {
+		if(path.startsWith("~/")) path = path.replace("~", System.getProperty("user.home"));
+		return path;
+	}
 	
 	public TypoTattler(String[] args) throws FileNotFoundException {
 		
@@ -29,7 +33,7 @@ public class TypoTattler {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
 		
-		if(args[0].startsWith("~")) args[0] = args[0].replace("~", System.getProperty("user.home"));
+		args[0] = expandUser(args[0]);
 		toEdit = Paths.get(args[0]);
 		if(!Files.exists(toEdit)) {
 			String errormsg = String.format("%s does not exist", toEdit.toString());
@@ -38,6 +42,7 @@ public class TypoTattler {
 		
 		dict = null;
 		if(args.length == 2) {
+			args[1]  = expandUser(args[1]);
 			dict = Paths.get(args[1]);
 			if(!Files.exists(dict)) {
 				System.err.println("Dictionary does not exist. Fallback to default.");
