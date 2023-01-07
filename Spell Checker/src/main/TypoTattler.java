@@ -10,17 +10,9 @@ import java.util.List;
 
 public class TypoTattler {
 	
-	private String correction;
-	private Mistake current = null;
-	private boolean writetodisk = false;
-	private char c = 'n', c2 = 'y';
-	private int suggestion;
-	private ArrayList<Character> answers;
 	private Parser p;
-	private Input in;
-	private Path dict, toEdit;
-	private final Path DICT = Paths.get(System.getProperty("user.home"), "dict.txt");
-	private final String OPTIONS = "(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit\n";
+	private final Input in = new Input();
+	private Path toEdit;
 	
 	public static String expandUser(String path) {
 		if(path.startsWith("~/")) path = path.replace("~", System.getProperty("user.home"));
@@ -28,7 +20,7 @@ public class TypoTattler {
 	}
 	
 	public TypoTattler(String[] args) throws FileNotFoundException {
-		
+		Path dict;
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
@@ -54,6 +46,7 @@ public class TypoTattler {
 			}
 		}
 		
+		final Path DICT = Paths.get(System.getProperty("user.home"), "dict.txt");
 		if(dict == null) {
 			try {
 				Checker checker = new Checker(DICT);
@@ -63,15 +56,27 @@ public class TypoTattler {
 			}
 		}
 		
-		in = new Input();
-		answers = new ArrayList<Character>(List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p'));
-		answers.sort(Character::compare);
+		
 		
 	}
 	
 	public void mainloop() {
-		System.out.println(OPTIONS);
-			
+		boolean writeToDisk = false;
+		String correction;
+		int suggestion;
+		Mistake current = null;
+		char c = 'n';
+		final String OPTIONS = 
+				"""
+(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit\n		
+				""";
+		ArrayList<Character> answers = 
+				new ArrayList<Character>(
+						List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p')
+						);
+		answers.sort(Character::compare);
+		
+		System.out.println(OPTIONS);	
 			loop:
 			while(true) {
 				
@@ -85,9 +90,9 @@ public class TypoTattler {
 					break;
 					
 				case 'a':
-					c2 = 'y';
-					while(!p.checker.addToUsrDict(current) && c2 != 'n') {
-						c2 = in.getC("Could not save to file. Retry? (Y/N)", in.yesno);
+					c = 'y';
+					while(!p.checker.addToUsrDict(current) && c != 'n') {
+						c = in.getC("Could not save to file. Retry? (Y/N)", in.yesno);
 					};
 					c = 'n';
 					//fallthrough
@@ -128,6 +133,8 @@ public class TypoTattler {
 						}
 					}
 					this.replace(current, correction);
+					writeToDisk = true;
+					c = 'n';
 					continue;
 					
 				case 's':
@@ -137,6 +144,8 @@ public class TypoTattler {
 					suggestion = in.readInt(0 , current.suggestions.length);
 					if(suggestion != 0) {
 						this.replace(current, current.suggestions[suggestion-1]);
+						writeToDisk = true;
+						c = 'n';
 						continue;
 					}
 					
@@ -163,24 +172,22 @@ public class TypoTattler {
 				c = in.getC(answers);	
 			}
 			
-			if(writetodisk) {
+			if(writeToDisk) {
 				w2d();
 			}
 		}
 	
-	private void replace(Mistake m, String replacement) {
-		c = 'n';
+	private void replace(Mistake current, String replacement) {
+		char c = 'n';
 		if(current.next != null) {
 			c = in.getC(current.wrongword + " was found more than once. Replace all? (Y/N)", in.yesno);
 		}
 		
 		if(c == 'y') {
 			p.replaceAll(current, replacement);
-			c = 'n';
 		}else {
 			p.replace(current, replacement);
 		}
-		writetodisk = true;
 	}
 	
 	private void w2d() {
@@ -190,7 +197,7 @@ public class TypoTattler {
 		Path tmp = Paths.get(toEdit.getParent().toString(), 
 				tmpstr.substring(0, tmpstr.lastIndexOf('.'))
 				+"-copy.txt");
-		c = in.getC(String.format("File was modified. It will be saved as '%s' (Y/N)", tmp), in.yesno);
+		char c = in.getC(String.format("File was modified. It will be saved as '%s' (Y/N)", tmp), in.yesno);
 		if(c == 'y') {
 			correctpath = p.writetodisk(tmp);
 		}
