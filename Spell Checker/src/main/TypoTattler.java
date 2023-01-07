@@ -1,4 +1,5 @@
 package main;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,50 +19,21 @@ public class TypoTattler {
 	private Parser p;
 	private Input in;
 	private Path dict, toEdit;
-	private boolean valid = false;
+	private final Path DICT = Paths.get(System.getProperty("user.home"), "dict.txt");
 	private final String OPTIONS = "(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit\n";
-	private final String extendedhelpmessage = 
-			"""
-			SYNOPSIS
-					typotattler FILE [DICTIONARY]
-			
-			DESCRIPTION
-					typotattler disassembles FILE into its individual words and checks them against the default wordlist or against a DICTIONARY if provided.
-					File should be a normal textfile. DICTIONARY should be a textfile consisting of one individual word per line. Operation is facilitated via
-					the keys shown in USAGE.
-					
-			USAGE
-					n - Display the next valid mistake and (if not already shown) the full line the mistake belongs to.
-					p - Display the previous valid mistake and (if not already shown) the full line the mistake belongs to.
-					r - Provide a revision for the current (and optionally all other matching) mistakes.
-					s - Get a list of words from DICTIONARY that are close to the current mistake. 
-						Select a replacement by choosing the corresponding number.
-					a - Add the mistake to the user DICTIONARY. All future occurrences of the mistake in this FILE (now marked as invalid)
-						and others will not be marked as mistake again.
-					i - Ignore this and all future occurrences of this mistake in this FILE (marks them as invalid). 
-						Resets when reloading the FILE.
-					c - Print the previous, the current and the next line corresponding to the current mistake.
-					l - Go to the first valid mistake in the line referenced by the number or in the lines following after.
-					o - Get a quick overview over the key commands described here.
-					e - Exit the program and save the FILE if it was modified.
-			""";
 	
-	public TypoTattler(String[] args) {
+	
+	public TypoTattler(String[] args) throws FileNotFoundException {
 		
 		if(args.length < 1 && args.length > 2) {
-			System.err.println("Unexpected number of arguments. Exiting..."); 
-			return; 
+			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
 		
-		if(args.length == 0 || args[0].equals("--help")) {
-			System.out.print(extendedhelpmessage);
-			return;
-		}
 		if(args[0].startsWith("~")) args[0] = args[0].replace("~", System.getProperty("user.home"));
 		toEdit = Paths.get(args[0]);
 		if(!Files.exists(toEdit)) {
-			System.err.printf("%s is not a valid file. Exiting...\n", toEdit.toString());
-			return;
+			String errormsg = String.format("%s does not exist", toEdit.toString());
+			throw new FileNotFoundException(errormsg);
 		}
 		
 		dict = null;
@@ -84,10 +56,10 @@ public class TypoTattler {
 		
 		if(dict == null) {
 			try {
-				p = new Parser(toEdit);
+				Checker checker = new Checker(DICT);
+				p = new Parser(toEdit, checker);
 			} catch(IOException e) {
-				System.err.println("Invalid standard dictionary file. Exiting...");
-				return;
+				throw new FileNotFoundException("Invalid standard dictionary file: " + DICT);
 			}
 		}
 		
@@ -95,12 +67,9 @@ public class TypoTattler {
 		answers = new ArrayList<Character>(List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p'));
 		answers.sort(Character::compare);
 		
-		valid = true;
-		
 	}
 	
 	public void mainloop() {
-		if(!valid) return;
 		System.out.println(OPTIONS);
 			
 			loop:
