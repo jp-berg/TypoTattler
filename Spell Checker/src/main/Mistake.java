@@ -72,7 +72,7 @@ public class Mistake implements Comparable<Mistake> {
 		
 		return true;
 	}
-	
+
 	/**
 	 * Passes the generated suggestions to all mistakes with the same spelling.
 	 */
@@ -105,17 +105,18 @@ public class Mistake implements Comparable<Mistake> {
 		return false;
 		
 	}
-	
+
 	/**
 	 * Marks this and all mistakes with the same spelling as invalid mistakes, i.e. they
 	 * should be ignored.
 	 */
 	public void invalidateAll() {
 		Mistake m = this;
-		while(m.next != null) {
-			m = m.next;
+		do {
 			m.valid = false;
+			m = m.next;
 		}
+		while(m != null);
 	}
 	
 	@Override

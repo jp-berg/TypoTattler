@@ -34,7 +34,7 @@ public class Input {
 		return res;
 	}
 	
-	public int readInt(ArrayList<Integer> answers) {
+	public int readInt(List<Integer> answers) {
 		int answer;
 		answer = this.readInt();
 		while(!answers.contains(answer)) {
@@ -54,7 +54,7 @@ public class Input {
 		return answer;
 	}
 	
-	public int readInt(String promt, ArrayList<Integer> answers) {
+	public int readInt(String promt, List<Integer> answers) {
 		System.out.println(promt);
 		return this.readInt(answers);
 	}
@@ -74,7 +74,7 @@ public class Input {
 		return this.getC();
 	}
 	
-	public Character getC(ArrayList<Character> answers) {
+	public Character getC(List<Character> answers) {
 		Character answer;
 		answer = this.getC();
 		while(!answers.contains(answer)) {
@@ -84,7 +84,7 @@ public class Input {
 		return answer;
 	}
 	
-	public Character getC(String promt, ArrayList<Character> answers) {
+	public Character getC(String promt, List<Character> answers) {
 		System.out.print(promt);
 		return this.getC(answers);
 	}
