@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class TypoTattler {
@@ -17,6 +19,10 @@ public class TypoTattler {
 	public static String expandUser(String path) {
 		if(path.startsWith("~/")) path = path.replace("~", System.getProperty("user.home"));
 		return path;
+	}
+	
+	public static Path expandUser(Path path) {
+		return Paths.get(expandUser(path.toString()));
 	}
 	
 	public TypoTattler(String[] args) throws FileNotFoundException {
@@ -190,26 +196,77 @@ public class TypoTattler {
 		}
 	}
 	
+
+	
+	private static final Pattern pattern = Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
+	
+	private static String incrName(String name) {
+		Matcher m = pattern.matcher(name);
+		if(m.find()) {
+			String num = name.substring(m.start() +1, name.lastIndexOf(')'));
+			name = name.substring(0, m.start());
+			int i = Integer.parseInt(num) +1;
+			name = name + "(" + i + ")";
+			
+		} else {
+			name = name + "(1)";
+		}
+		
+		return name;
+		
+	}
+	
+	private static Path avoidNameCollision(Path path) {
+		String filename = path.getFileName().toString();
+		String extention = "";
+
+		int i = filename.lastIndexOf('.');
+		if(i != -1) {
+			extention = filename.substring(i, filename.length());
+			filename = filename.substring(0, i);
+		}
+		
+		do {
+			filename = incrName(filename);
+			path = path.resolveSibling(filename + extention);
+		}while(Files.exists(path));
+		
+		return path;
+
+	}
+	
 	private void w2d() {
 		
 		boolean correctpath = true;
-		String tmpstr = toEdit.getFileName().toString();
-		Path tmp = Paths.get(toEdit.getParent().toString(), 
-				tmpstr.substring(0, tmpstr.lastIndexOf('.'))
-				+"-copy.txt");
-		char c = in.getC(String.format("File was modified. It will be saved as '%s' (Y/N)", tmp), in.yesno);
+		Path path = avoidNameCollision(toEdit);
+		String tmpstr = String.format("File was modified. It will be saved as '%s' (Y/N)", path);
+		char c = in.getC(tmpstr, in.yesno);
+		
 		if(c == 'y') {
-			correctpath = p.writetodisk(tmp);
+			correctpath = p.writetodisk(path);
 		}
 		if(c == 'n' || !correctpath) {
 			
 			do {
-					if(!correctpath) System.out.print("Incorrect path. ");
+					if(!correctpath) System.out.printf("Invalid path: %s\n", path);
+					
 					tmpstr  = in.getS("Please enter a new path:");
-					if(!tmpstr.endsWith(".txt")) tmpstr += ".txt";
-					if(tmpstr.startsWith("~")) tmpstr = tmpstr.replace("~", System.getProperty("user.home"));
-					tmp = Paths.get(tmpstr);
-					correctpath = p.writetodisk(tmp);
+					tmpstr = expandUser(tmpstr);
+					path = Paths.get(tmpstr);
+					
+					if(Files.exists(path)) {
+						Path tmpPath = avoidNameCollision(path);
+						String answer = String.format("File '%s' already exists. (E)nter new name/(R)ename to '%s'/(O)verwrite", 
+								tmpstr, tmpPath.getFileName());
+						c = in.getC(answer, List.of('e', 'r', 'o'));
+						
+						switch(c) {
+						case 'e': continue;
+						case 'r': path = tmpPath;break;
+						case 'o':break;
+						}
+					}
+					correctpath = p.writetodisk(path);
 			}while(!correctpath);
 		}
 	}
