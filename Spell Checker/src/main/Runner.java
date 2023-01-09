@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
  */
 public class Runner {
 	
+	/** A message showing detailed instructions on how to use the program*/
 	private final static String HELPMESSAGE = 
 			"""
 			SYNOPSIS
@@ -38,8 +39,8 @@ public class Runner {
 	
 
 	/**
-	 * Main method for the TypoTattler. Responsible for creating a new instance and
-	 * launching the mainloop.
+	 * Main method for the TypoTattler. Responsible for basic command line argument checking,
+	 * creating a new instance and launching the mainloop.
 	 * @param args command line arguments
 	 */
 	public static void main(String[] args) {
