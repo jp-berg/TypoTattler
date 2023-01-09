@@ -1,3 +1,4 @@
+/* LICENSING MISSING */
 package main;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,13 +10,28 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * Class containing the setup and the main loop of the program. 
+ * @author Jan Philipp Berg
+ * @vers 0.1
+ *
+ */
 public class TypoTattler {
 	
+	/** The parser that will analyze the file.*/
 	private Parser p;
+	/** The class used to communicate with the user*/
 	private final Input in = new Input();
+	/** The path to the file in need of correction*/
 	private Path toEdit;
 	
+	
+	/**
+	 * Constructor. Validates the command line arguments and tries to
+	 * handle errors.
+	 * @param args The command line arguments for the program
+	 * @throws FileNotFoundException
+	 */
 	public TypoTattler(String[] args) throws FileNotFoundException {
 		Path dict;
 		if(args.length < 1 && args.length > 2) {
@@ -57,6 +73,10 @@ public class TypoTattler {
 		
 	}
 	
+	/**
+	 * Iterates throught the text {@link main.Mistake} by {@link main.Mistake} guided by
+	 * user input, offering various operations for correcting them.
+	 */
 	public void mainloop() {
 		boolean writeToDisk = false;
 		String correction;
@@ -78,7 +98,7 @@ public class TypoTattler {
 			while(true) {
 				
 				switch (c) {
-				case 'e':
+				case 'e': /* Exists the loop and the program */
 					if(in.getC("Exit? (Y/N)", in.yesno) == 'y') break loop;
 					break;
 				
@@ -86,7 +106,8 @@ public class TypoTattler {
 					System.out.println(OPTIONS);
 					break;
 					
-				case 'a':
+				case 'a': 
+					/* Adds the spelling in current to the dictionary and ignores this and future occurrences*/
 					c = 'y';
 					while(!p.checker.addToUsrDict(current) && c != 'n') {
 						c = in.getC("Could not save to file. Retry? (Y/N)", in.yesno);
@@ -94,11 +115,11 @@ public class TypoTattler {
 					c = 'n';
 					//fallthrough
 				
-				case 'i':
+				case 'i': /* Ignore this and future occurences of the spelling in current*/
 					p.ignore(current);
 					//fallthrough	
 					
-				case 'n':
+				case 'n': /* Move to the next mistake*/
 					if(p.hasNext()) {
 						current = p.next();
 						System.out.println(current);
@@ -109,7 +130,7 @@ public class TypoTattler {
 					}
 					break;
 				
-				case 'p':
+				case 'p': /* Move to the previous mistake*/
 					if(p.hasPrevious()) {
 						current = p.previous();
 						System.out.println(current);
@@ -120,7 +141,7 @@ public class TypoTattler {
 					}
 					break;
 					
-				case 'r':
+				case 'r': /* Get a user-provided spelling for the current mistake*/
 					correction = in.getS("Revision: ");
 					if(p.checker.ismistake(correction)) {
 						c = in.getC("Word not in dictionary. Replace anyways? (Y/N)", in.yesno);
@@ -134,7 +155,7 @@ public class TypoTattler {
 					c = 'n';
 					continue;
 					
-				case 's':
+				case 's': /* Get possible corrections for the current mistake from the dictionary*/
 					current.getSuggestions();
 					System.out.print("(0) - Cancel || ");
 					current.printSuggestions();
@@ -150,16 +171,16 @@ public class TypoTattler {
 					break;
 					
 				
-				case 'c':
+				case 'c': /* Prints the lines surrounding the mistakte to provide context: */
 					System.out.println(p.context(current));
 					break;
 					
 				
-				case 'o':
+				case 'o': /* Shows the overview over the options again */
 					System.out.println(OPTIONS);
 					break;
 					
-				case 'l':
+				case 'l': /* Moves to the first mistake following the beginning of the line */
 					int i = in.readInt("Go to line: ", 0, p.lines.size());
 					p.toLine(i);
 					c = 'n';
@@ -174,6 +195,12 @@ public class TypoTattler {
 			}
 		}
 	
+	/**
+	 * Replaces the mistake with a user provided alternative.
+	 * 
+	 * @param current The mistake to replace
+	 * @param replacement The string to correct the spelling error in mistake
+	 */
 	private void replace(Mistake current, String replacement) {
 		char c = 'n';
 		if(current.next != null) {
@@ -187,6 +214,10 @@ public class TypoTattler {
 		}
 	}
 	
+	/**
+	 * Writes the modified file (if desired by the user). Detects name collisions with
+	 * existing files and offers new names to avoid overwriting existing files.
+	 */
 	private void w2d() {
 		
 		boolean correctpath = true;
