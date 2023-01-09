@@ -16,22 +16,13 @@ public class TypoTattler {
 	private final Input in = new Input();
 	private Path toEdit;
 	
-	public static String expandUser(String path) {
-		if(path.startsWith("~/")) path = path.replace("~", System.getProperty("user.home"));
-		return path;
-	}
-	
-	public static Path expandUser(Path path) {
-		return Paths.get(expandUser(path.toString()));
-	}
-	
 	public TypoTattler(String[] args) throws FileNotFoundException {
 		Path dict;
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
 		
-		args[0] = expandUser(args[0]);
+		args[0] = FileHelpers.expandUser(args[0]);
 		toEdit = Paths.get(args[0]);
 		if(!Files.exists(toEdit)) {
 			String errormsg = String.format("%s does not exist", toEdit.toString());
@@ -40,7 +31,7 @@ public class TypoTattler {
 		
 		dict = null;
 		if(args.length == 2) {
-			args[1]  = expandUser(args[1]);
+			args[1]  = FileHelpers.expandUser(args[1]);
 			dict = Paths.get(args[1]);
 			try {
 				Checker checker = new Checker(dict);
@@ -196,49 +187,10 @@ public class TypoTattler {
 		}
 	}
 	
-
-	
-	private static final Pattern pattern = Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
-	
-	private static String incrName(String name) {
-		Matcher m = pattern.matcher(name);
-		if(m.find()) {
-			String num = name.substring(m.start() +1, name.lastIndexOf(')'));
-			name = name.substring(0, m.start());
-			int i = Integer.parseInt(num) +1;
-			name = name + "(" + i + ")";
-			
-		} else {
-			name = name + "(1)";
-		}
-		
-		return name;
-		
-	}
-	
-	private static Path avoidNameCollision(Path path) {
-		String filename = path.getFileName().toString();
-		String extention = "";
-
-		int i = filename.lastIndexOf('.');
-		if(i != -1) {
-			extention = filename.substring(i, filename.length());
-			filename = filename.substring(0, i);
-		}
-		
-		do {
-			filename = incrName(filename);
-			path = path.resolveSibling(filename + extention);
-		}while(Files.exists(path));
-		
-		return path;
-
-	}
-	
 	private void w2d() {
 		
 		boolean correctpath = true;
-		Path path = avoidNameCollision(toEdit);
+		Path path = FileHelpers.avoidNameCollision(toEdit);
 		String tmpstr = String.format("File was modified. It will be saved as '%s' (Y/N)", path);
 		char c = in.getC(tmpstr, in.yesno);
 		
@@ -251,11 +203,11 @@ public class TypoTattler {
 					if(!correctpath) System.out.printf("Invalid path: %s\n", path);
 					
 					tmpstr  = in.getS("Please enter a new path:");
-					tmpstr = expandUser(tmpstr);
+					tmpstr = FileHelpers.expandUser(tmpstr);
 					path = Paths.get(tmpstr);
 					
 					if(Files.exists(path)) {
-						Path tmpPath = avoidNameCollision(path);
+						Path tmpPath = FileHelpers.avoidNameCollision(path);
 						String answer = String.format("File '%s' already exists. (E)nter new name/(R)ename to '%s'/(O)verwrite", 
 								tmpstr, tmpPath.getFileName());
 						c = in.getC(answer, List.of('e', 'r', 'o'));
