@@ -81,10 +81,6 @@ public class TypoTattler {
 				case 'e':
 					if(in.getC("Exit? (Y/N)", in.yesno) == 'y') break loop;
 					break;
-				
-				case 'h':
-					System.out.println(OPTIONS);
-					break;
 					
 				case 'a':
 					c = 'y';
