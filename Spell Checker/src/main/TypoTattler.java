@@ -67,11 +67,8 @@ public class TypoTattler {
 				"""
 (N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit\n		
 				""";
-		ArrayList<Character> answers = 
-				new ArrayList<Character>(
-						List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p')
-						);
-		answers.sort(Character::compare);
+		List<Character> answers = 
+						List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p');
 		
 		System.out.println(OPTIONS);	
 			loop:
