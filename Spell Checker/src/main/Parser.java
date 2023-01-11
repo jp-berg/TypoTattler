@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.*;
 import java.util.stream.Collectors;
 
@@ -84,32 +87,41 @@ public class Parser implements Iterator<Mistake>{
 		return mistakes.get(mistakeno--);
 	}
 	
-	public void replace(Mistake m, String replacement) {
+	public String replace(Mistake m, String replacement) {
 		String line = lines.get(m.lineno), word = m.wrongword;
+		if(m.uppercase) replacement.toUpperCase();
 		
 		if(line.contains(word)) {
 			lines.set(m.lineno, line.replace(word, replacement));
 			m.valid = false;
-			return;
+			return null;
+		}else {
+			return line;
 		}
-		word = word.substring(0,1).toUpperCase() + word.substring(1);
-		if(line.contains(word)) {
-			lines.set(m.lineno, line.replace(word, replacement));
-			m.valid = false;
-			return;
-		}
-		
-		throw new IllegalArgumentException(String.format("Mistake '%s' not found in line %d.", m, m.lineno));
-		
 	}
-	
-	public void replaceAll(Mistake m, String replacement) {
+	 
+	public List<String> replaceAll(Mistake m, String replacement) {
 		Mistake current = m;
-		this.replace(current, replacement);
-		while(current.next != null) {
+		var failedList = new ArrayList<String>();
+		String notFoundIn = null;
+		int lastLine = -1;
+		
+		do {
+			if(current.lineno != lastLine) { //The same mistake can occur multiple times in the same line, but will be corrected the first time it is encountered					
+				System.out.println(lastLine);
+				notFoundIn = this.replace(current, replacement);
+				if(notFoundIn != null) {
+					failedList.add("" + current.lineno + ": " + notFoundIn);
+				}
+			}
+			
+			lastLine = current.lineno;
 			current = current.next;
-			this.replace(current, replacement);
-		}
+		
+		}while(current != null);
+		
+		if(failedList.isEmpty()) return null;
+		return failedList;
 		
 	}
 	
