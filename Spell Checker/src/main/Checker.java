@@ -45,12 +45,12 @@ Checker(Path dictpath) throws IOException{
 		throw new IOException("Not a valid file.");
 	}
 	file2dict(dictfile);
-	usrdict = Paths.get(System.getProperty("user.home"),".config", "usrdict.txt").toFile();
-	
-	if(usrdict.isFile()) {
+	Path dir = FileHelpers.getDataDir("TypoTattler");
+	usrdict = dir.resolve("usrdict.txt").toFile();
+	System.out.println("USRDICT:" + usrdict);
+	Files.createDirectories(dir);
+	if(!usrdict.createNewFile()) {
 		file2dict(usrdict);
-	} else {
-		usrdict.createNewFile();
 	}
 }
 
