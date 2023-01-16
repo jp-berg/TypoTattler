@@ -126,14 +126,11 @@ public class Parser implements Iterator<Mistake>{
 	}
 	
 	public String context(Mistake mistake) {
-		if(mistake.lineno > 0) {
-			return lines.get(mistake.lineno-1) + "\n"
-					+lines.get(mistake.lineno) + "\n"
-					+lines.get(mistake.lineno+1)+ "\n";
-		} else {
-			return lines.get(mistake.lineno) + "\n"
-					+lines.get(mistake.lineno+1)+ "\n";
-		}
+		final int i = mistake.lineno;
+		String res = lines.get(i);
+		if(i-1 >= 0) res = lines.get(i-1) + "\n" + res;
+		if(i+1 < lines.size()) res = res + "\n" + lines.get(i+1);
+		return res;
 	}
 	
 	public boolean writetodisk() {
