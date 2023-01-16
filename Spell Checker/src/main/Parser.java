@@ -126,8 +126,8 @@ public class Parser implements Iterator<Mistake>{
 	public String context(Mistake mistake) {
 		final int i = mistake.lineno;
 		String res = lines.get(i);
-		if(i-1 >= 0) res = lines.get(i-1) + "\n" + res;
-		if(i+1 < lines.size()) res = res + "\n" + lines.get(i+1);
+		if(i-1 >= 0) res = lines.get(i-1) + System.lineSeparator() + res;
+		if(i+1 < lines.size()) res = res + System.lineSeparator() + lines.get(i+1);
 		return res;
 	}
 	

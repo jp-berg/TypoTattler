@@ -25,8 +25,8 @@ private void file2dict(File file) {
 			ismax(word);
 		}
 		dlMatrix = new int[maxwordlength][maxwordlength];
-	}catch (IOException x) {
-		System.err.format("IOException: %s%n", x);
+	}catch (IOException e) {
+		System.err.format("IOException: %s" + System.lineSeparator(), e);
 	}
 }
 

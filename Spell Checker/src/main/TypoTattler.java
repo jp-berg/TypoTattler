@@ -39,7 +39,8 @@ public class TypoTattler {
 				Checker checker = new Checker(dict);
 				p = new Parser(toEdit, checker);
 			} catch (IOException e) {
-				System.err.printf("Invalid dictionary file: %s\nFallback to default.\n", dict);
+				System.err.printf("Invalid dictionary file: %s"+ System.lineSeparator()
+								+ "Fallback to default." + System.lineSeparator(), dict);
 				dict = null;
 				p = null;
 			}
@@ -66,8 +67,8 @@ public class TypoTattler {
 		char c = 'n';
 		final String OPTIONS = 
 				"""
-(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit\n		
-				""";
+(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit		
+				""" + System.lineSeparator();
 		List<Character> answers = 
 						List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p');
 		
@@ -166,8 +167,8 @@ public class TypoTattler {
 	
 	private static final String errmsg_replace = """
 			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
-			'%s' was not found in the recorded line in the following cases:\n
-			""";
+			'%s' was not found in the recorded line in the following cases:
+			""" + System.lineSeparator();
 	
 	private char replace(Mistake current, String replacement) {
 		char c = 'n';
@@ -187,7 +188,7 @@ public class TypoTattler {
 		if(failed != null) {
 			System.err.println(errmsg_replace);
 			for(var element: failed) {
-				System.err.println(element + "\n");
+				System.err.println(element + System.lineSeparator());
 			}
 			c = 'r';
 		} else {
@@ -211,7 +212,7 @@ public class TypoTattler {
 		if(c == 'n' || !correctpath) {
 			
 			do {
-					if(!correctpath) System.out.printf("Invalid path: %s\n", path);
+					if(!correctpath) System.out.printf("Invalid path: %s" + System.lineSeparator(), path);
 					
 					tmpstr  = in.getS("Please enter a new path:");
 					tmpstr = FileHelpers.expandUser(tmpstr);

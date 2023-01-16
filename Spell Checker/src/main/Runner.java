@@ -28,7 +28,7 @@ public class Runner {
 					l - Go to the first valid mistake in the line referenced by the number or in the lines following after.
 					o - Get a quick overview over the key commands described here.
 					e - Exit the program and save the FILE if it was modified.
-			""";
+			""" + System.lineSeparator();
 	
 
 	public static void main(String[] args) {
