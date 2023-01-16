@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -15,6 +16,7 @@ public class TypoTattler {
 	private Parser p;
 	private final Input in = new Input();
 	private Path toEdit;
+	private boolean writeToDisk = false;
 	
 	public TypoTattler(String[] args) throws FileNotFoundException {
 		Path dict;
@@ -58,7 +60,6 @@ public class TypoTattler {
 	}
 	
 	public void mainloop() {
-		boolean writeToDisk = false;
 		String correction;
 		int suggestion;
 		Mistake current = null;
@@ -122,9 +123,7 @@ public class TypoTattler {
 								continue;
 						}
 					}
-					this.replace(current, correction);
-					writeToDisk = true;
-					c = 'n';
+					c = this.replace(current, correction);
 					continue;
 					
 				case 's':
@@ -133,9 +132,7 @@ public class TypoTattler {
 					current.printSuggestions();
 					suggestion = in.readInt(0 , current.suggestions.length);
 					if(suggestion != 0) {
-						this.replace(current, current.suggestions[suggestion-1]);
-						writeToDisk = true;
-						c = 'n';
+						c = this.replace(current, current.suggestions[suggestion-1]);
 						continue;
 					}
 					
@@ -167,17 +164,38 @@ public class TypoTattler {
 			}
 		}
 	
-	private void replace(Mistake current, String replacement) {
+	private static final String errmsg_replace = """
+			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
+			'%s' was not found in the recorded line in the following cases:\n
+			""";
+	
+	private char replace(Mistake current, String replacement) {
 		char c = 'n';
+		List<String> failed = null;
+		
 		if(current.next != null) {
 			c = in.getC(current.wrongword + " was found more than once. Replace all? (Y/N)", in.yesno);
 		}
 		
 		if(c == 'y') {
-			p.replaceAll(current, replacement);
+			failed = p.replaceAll(current, replacement);
 		}else {
-			p.replace(current, replacement);
+			String tmp = p.replace(current, replacement);
+			if(tmp != null) failed = List.of(tmp);
 		}
+		
+		if(failed != null) {
+			System.err.println(errmsg_replace);
+			for(var element: failed) {
+				System.err.println(element + "\n");
+			}
+			c = 'r';
+		} else {
+			writeToDisk = true;
+			c = 'n';
+		}
+		System.out.println("NEXT!!!" + c);
+		return c;
 	}
 	
 	private void w2d() {
