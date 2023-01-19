@@ -47,7 +47,6 @@ Checker(Path dictpath) throws IOException{
 	file2dict(dictfile);
 	Path dir = FileHelpers.getDataDir("TypoTattler");
 	usrdict = dir.resolve("usrdict.txt").toFile();
-	System.out.println("USRDICT:" + usrdict);
 	Files.createDirectories(dir);
 	if(!usrdict.createNewFile()) {
 		file2dict(usrdict);
