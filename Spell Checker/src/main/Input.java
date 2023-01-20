@@ -1,12 +1,17 @@
 package main;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Input {
 	private Scanner scanner;
-	public final ArrayList<Character> yesno = new ArrayList<Character>(List.of('y', 'n'));
+	
+	public static final List<String> yesNo = List.of("Yes", "No");
+	public static final List<String> yesNoCancel = List.of("Yes", "No", "Cancel"); 
+	
 	
 	Input(InputStream source){
 		 scanner = new Scanner(source);
@@ -87,6 +92,52 @@ public class Input {
 	public Character getC(String promt, List<Character> answers) {
 		System.out.print(promt);
 		return this.getC(answers);
+	}
+	
+	private static String string2option(String s) {
+		return "(" + s.substring(0, 1).toUpperCase() + ")" + s.substring(1);
+	}
+	
+	public Character getChar(String promt, List<String> options) {
+		System.out.print(promt);
+		return getChar(options);
+	}
+	
+	public Character getChar(String ...options) {
+		return getChar(Arrays.asList(options));
+	}
+	
+	public static String concatOptions(List<String> options) {
+		var sb = new StringBuilder();
+		sb.append("[");
+		for(var s: options) {
+			sb.append(string2option(s));
+			sb.append("/");
+		}
+		sb.setCharAt(sb.length()-1, ']');
+		return sb.toString();
+	}
+	
+	public static List<Character> gatherFirstLetters(List<String> options){
+		var l = options.stream()
+				.map(s -> s.toLowerCase())
+				.map(c -> c.charAt(0))
+				.distinct()
+				.sorted()
+				.collect(Collectors.toCollection(ArrayList::new));
+		
+		if(l.size() != options.size()) {
+			throw new IllegalArgumentException(
+					"Two options start with the same letter");
+		}
+		return l;
+	}
+	
+	public Character getChar(List<String> options) {
+		if(options == null) throw new NullPointerException("list is null");
+		if(options.isEmpty()) throw new IllegalArgumentException("list is empty");
+		
+		return getC(concatOptions(options), gatherFirstLetters(options));
 	}
 	
 	public String getS() {
