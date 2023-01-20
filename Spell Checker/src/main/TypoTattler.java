@@ -80,26 +80,26 @@ public class TypoTattler {
 		int suggestion;
 		Mistake current = null;
 		char c = 'n';
-		final String OPTIONS = 
-				"""
-(N)ext/(P)revious/(R)evise/(S)uggestions/(A)dd to dictionary/(I)gnore all/(C)ontext/Go to (L)ine/(O)ption overview/(E)xit		
-				""" + System.lineSeparator();
-		List<Character> answers = 
-						List.of('e', 'n', 'r', 'a', 'i', 'c', 's', 'l', 'o', 'p');
-		
-		System.out.println(OPTIONS);	
+		final List<String> options = List.<String>of("next", "previous", "suggestions", 
+				"revision", "add to dictionary", "ignore all", "context", "go to line", 
+				"option overview", "exit");
+		final String OPTIONS = Input.concatOptions(options);
+		final List<Character> possibleAnswers = Input.gatherFirstLetters(options);
+			
+		System.out.println(OPTIONS);
 			loop:
 			while(true) {
 				
 				switch (c) {
 				case 'e':
-					if(in.getC("Exit? (Y/N)", in.yesno) == 'y') break loop;
+					if(in.getChar("Exit?", Input.yesNo) == 'y') break loop;
 					break;
 					
 				case 'a':
 					c = 'y';
 					while(!p.checker.addToUsrDict(current) && c != 'n') {
-						c = in.getC("Could not save to file. Retry? (Y/N)", in.yesno);
+						c = in.getChar("Could not save to file. Retry?", Input.yesNoCancel);
+						if(c == 'c') break;
 					};
 					c = 'n';
 					//fallthrough
@@ -133,11 +133,12 @@ public class TypoTattler {
 				case 'r':
 					correction = in.getS("Revision: ");
 					if(p.checker.ismistake(correction)) {
-						c = in.getC("Word not in dictionary. Replace anyways? (Y/N)", in.yesno);
+						c = in.getChar("Word not in dictionary. Replace anyways?", Input.yesNoCancel);
 						if(c == 'n') {
 								c = 'r';
 								continue;
 						}
+						if(c == 'c') break;
 					}
 					c = this.replace(current, correction);
 					continue;
@@ -170,9 +171,11 @@ public class TypoTattler {
 					p.toLine(i);
 					c = 'n';
 					continue;
+				
+				case '0': break;
 				}
 				
-				c = in.getC(answers);	
+				c = in.getC(possibleAnswers);	
 			}
 			
 			if(writeToDisk) {
@@ -190,14 +193,16 @@ public class TypoTattler {
 		List<String> failed = null;
 		
 		if(current.next != null) {
-			c = in.getC(current.wrongword + " was found more than once. Replace all? (Y/N)", in.yesno);
+			c = in.getChar(current.wrongword + " was found more than once. Replace all? ", Input.yesNoCancel);
 		}
 		
 		if(c == 'y') {
 			failed = p.replaceAll(current, replacement);
-		}else {
+		}else if (c == 'n'){
 			String tmp = p.replace(current, replacement);
 			if(tmp != null) failed = List.of(tmp);
+		}else {
+			c = '0';
 		}
 		
 		if(failed != null) {
@@ -218,8 +223,8 @@ public class TypoTattler {
 		
 		boolean correctpath = true;
 		Path path = FileHelpers.avoidNameCollision(toEdit);
-		String tmpstr = String.format("File was modified. It will be saved as '%s' (Y/N)", path);
-		char c = in.getC(tmpstr, in.yesno);
+		String tmpstr = String.format("File was modified. It will be saved as '%s'", path);
+		char c = in.getChar(tmpstr, Input.yesNo);
 		
 		if(c == 'y') {
 			correctpath = p.writetodisk(path);
@@ -235,9 +240,11 @@ public class TypoTattler {
 					
 					if(Files.exists(path)) {
 						Path tmpPath = FileHelpers.avoidNameCollision(path);
-						String answer = String.format("File '%s' already exists. (E)nter new name/(R)ename to '%s'/(O)verwrite", 
-								tmpstr, tmpPath.getFileName());
-						c = in.getC(answer, List.of('e', 'r', 'o'));
+						String promt = String.format("File '%s' already exists. ", tmpstr);
+						var options = List.of("Enter new name",
+								"Rename to '" + tmpPath.getFileName() + "'", 
+								"Overwrite");
+						c = in.getChar(promt, options);
 						
 						switch(c) {
 						case 'e': continue;
