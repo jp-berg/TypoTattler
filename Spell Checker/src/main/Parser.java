@@ -106,7 +106,6 @@ public class Parser implements Iterator<Mistake>{
 		
 		do {
 			if(current.lineno != lastLine) { //The same mistake can occur multiple times in the same line, but will be corrected the first time it is encountered					
-				System.out.println(lastLine);
 				notFoundIn = this.replace(current, replacement);
 				if(notFoundIn != null) {
 					failedList.add("" + current.lineno + ": " + notFoundIn);

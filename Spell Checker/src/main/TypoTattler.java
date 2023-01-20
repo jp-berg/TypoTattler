@@ -215,7 +215,6 @@ public class TypoTattler {
 			writeToDisk = true;
 			c = 'n';
 		}
-		System.out.println("NEXT!!!" + c);
 		return c;
 	}
 	
