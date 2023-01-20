@@ -14,46 +14,65 @@ public class TypoTattler {
 	private Path toEdit;
 	private boolean writeToDisk = false;
 	
-	public TypoTattler(String[] args) throws FileNotFoundException {
-		Path dict;
+	public TypoTattler(String[] args) throws IOException {
+		Path dict = null;
+		Checker checker = null;
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
 		
 		args[0] = FileHelpers.expandUser(args[0]);
 		toEdit = Paths.get(args[0]);
-		if(!Files.exists(toEdit)) {
-			String errormsg = String.format("%s does not exist", toEdit.toString());
-			throw new FileNotFoundException(errormsg);
-		}
 		
-		dict = null;
 		if(args.length == 2) {
 			args[1]  = FileHelpers.expandUser(args[1]);
 			dict = Paths.get(args[1]);
 			try {
-				Checker checker = new Checker(dict);
-				p = new Parser(toEdit, checker);
+				checker = new Checker(dict);
 			} catch (IOException e) {
 				System.err.printf("Invalid dictionary file: %s"+ System.lineSeparator()
-								+ "Fallback to default." + System.lineSeparator(), dict);
+				+ "Falling back to installed dictionary", dict);
 				dict = null;
-				p = null;
 			}
 		}
 		
-		final Path DICT = Paths.get(System.getProperty("user.home"), "dict.txt");
+		final String WORDPATH1 = "/user/share/dict/words";
 		if(dict == null) {
+			dict = Path.of(WORDPATH1);
 			try {
-				Checker checker = new Checker(DICT);
-				p = new Parser(toEdit, checker);
+				checker = new Checker(dict);
+			} catch(IOException e) { dict = null;}
+		}
+		
+		final String WORDPATH2 = "/user/dict/words";
+		if(dict == null) {
+			dict = Path.of(WORDPATH2);
+			try {
+				checker = new Checker(dict);
 			} catch(IOException e) {
-				throw new FileNotFoundException("Invalid standard dictionary file: " + DICT);
+				String errmsg = 
+						"""
+			'words'-file not accessible under '%s' or '%s'. 
+			Please check if files are available and have the right permissions.
+			Some IDE-launched JVMs may have trouble accessing those files.
+			
+						""";
+				System.err.printf(errmsg, WORDPATH1, WORDPATH2);
+				dict = null;
 			}
 		}
 		
+		if(dict == null) {
+			System.err.println("Falling back to embedded dictionary");
+			String location = "/resources/american-english-huge";
+			try {
+				checker = new Checker(location);
+			} catch(IOException e) {
+				throw new FileNotFoundException("Invalid standard dictionary file: " + location);
+			}
+		}
 		
-		
+		p = new Parser(toEdit, checker);	
 	}
 	
 	public void mainloop() {

@@ -5,20 +5,22 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.*;
 import java.util.Comparator;
 import java.util.HashSet;
 
 public class Checker {
 	
-	private HashSet<String> dict = null;
 	private final int initialdictlen = 150000;
+	private HashSet<String> dict = new HashSet<String>(initialdictlen);
 	private File usrdict = null;
 	private int maxwordlength = -1;
 	private int[][] dlMatrix;
 	
-private void file2dict(File file) {
-	try (BufferedReader reader = new BufferedReader(new FileReader(file))){
+private void file2dict(Reader in) {
+	try (BufferedReader reader = new BufferedReader(in)){
 		String word = null;
 		while((word = reader.readLine())!= null) {
 			this.dict.add(word.toLowerCase());
@@ -38,19 +40,28 @@ private boolean ismax(String word) {
 		return false;
 }
 
-Checker(Path dictpath) throws IOException{
-	dict = new HashSet<String>(initialdictlen);
-	File dictfile = dictpath.toFile();
-	if(!dictfile.isFile()) {
-		throw new IOException("Not a valid file.");
-	}
-	file2dict(dictfile);
+private void loadUserDict() throws IOException {
 	Path dir = FileHelpers.getDataDir("TypoTattler");
 	usrdict = dir.resolve("usrdict.txt").toFile();
 	Files.createDirectories(dir);
 	if(!usrdict.createNewFile()) {
-		file2dict(usrdict);
+		file2dict(new FileReader(usrdict));
 	}
+}
+
+Checker(Path dictpath) throws IOException {
+	File dictfile = dictpath.toFile();
+	if(!dictfile.isFile()) {
+		throw new IOException("Not a valid file.");
+	}
+	file2dict(new FileReader(dictfile));
+	loadUserDict();
+}
+
+Checker(String location) throws IOException{
+	var isr = new InputStreamReader(getClass().getResourceAsStream(location));
+	file2dict(isr);
+	loadUserDict();
 }
 
 Checker() throws IOException{
