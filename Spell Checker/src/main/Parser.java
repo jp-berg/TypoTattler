@@ -108,7 +108,7 @@ public class Parser implements Iterator<Mistake>{
 			if(current.lineno != lastLine) { //The same mistake can occur multiple times in the same line, but will be corrected the first time it is encountered					
 				notFoundIn = this.replace(current, replacement);
 				if(notFoundIn != null) {
-					failedList.add("" + current.lineno + ": " + notFoundIn);
+					failedList.add("" + current.lineno+1 + ": " + notFoundIn);
 				}
 			}
 			
