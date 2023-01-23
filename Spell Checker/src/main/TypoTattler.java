@@ -85,6 +85,8 @@ public class TypoTattler {
 				"option overview", "exit");
 		final String OPTIONS = Input.concatOptions(options);
 		final List<Character> possibleAnswers = Input.gatherFirstLetters(options);
+		
+		final String CANCELTEXT = "Cancelled - New command:";
 			
 		System.out.println(OPTIONS);
 			loop:
@@ -99,7 +101,7 @@ public class TypoTattler {
 					c = 'y';
 					while(!p.checker.addToUsrDict(current) && c != 'n') {
 						c = in.getChar("Could not save to file. Retry?", Input.yesNoCancel);
-						if(c == 'c') break;
+						if(c == 'c') {System.out.println(CANCELTEXT); break;}
 					};
 					c = 'n';
 					//fallthrough
@@ -138,10 +140,12 @@ public class TypoTattler {
 								c = 'r';
 								continue;
 						}
-						if(c == 'c') break;
+						if(c == 'c') {System.out.println(CANCELTEXT); break;}
 					}
 					c = this.replace(current, correction);
-					continue;
+					if(c != '0') continue;
+					System.out.println(CANCELTEXT);
+					break;
 					
 				case 's':
 					current.getSuggestions();
@@ -150,10 +154,10 @@ public class TypoTattler {
 					suggestion = in.readInt(0 , current.suggestions.length);
 					if(suggestion != 0) {
 						c = this.replace(current, current.suggestions[suggestion-1]);
-						continue;
+						if(c != '0') continue;
 					}
 					
-					System.out.print("Cancelled - New command:");
+					System.out.print(CANCELTEXT);
 					break;
 					
 				
