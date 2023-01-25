@@ -53,28 +53,28 @@ public class TypoTattler {
 	}
 	
 	public TypoTattler(String[] args) throws IOException {
-		Path dict = null;
-		Checker checker = null;
+		
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
 		
 		args[0] = FileHelpers.expandUser(args[0]);
 		toEdit = Paths.get(args[0]);
+		Checker checker = null;
 		
 		if(args.length == 2) {
 			args[1]  = FileHelpers.expandUser(args[1]);
-			dict = Paths.get(args[1]);
+			Path dict = Paths.get(args[1]);
 			try {
 				checker = new Checker(dict);
 			} catch (IOException e) {
 				System.err.println(e.getMessage());
 				System.err.println("Falling back to installed dictionary");
-				dict = null;
+				checker = null;
 			}
 		}
 		
-		checker = initChecker();
+		if(checker == null) checker = initChecker();
 		
 		p = new Parser(toEdit, checker);
 		in = new Input();
