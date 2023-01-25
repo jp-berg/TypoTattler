@@ -1,4 +1,5 @@
 package main;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,43 @@ public class TypoTattler {
 	private final Input in = new Input();
 	private Path toEdit;
 	private boolean writeToDisk = false;
+	
+	private Checker initChecker() throws IOException {
+
+		Checker checker = null;
+		final Path WORDPATH1 = Path.of("/usr/share/dict/words");
+		final Path WORDPATH2 = Path.of("/usr/dict/words");
+
+		try {
+			checker = new Checker(WORDPATH1);
+		} catch(FileNotFoundException e) {
+			checker = null;
+		} 
+
+		if(checker == null) {
+			try {
+				checker = new Checker(WORDPATH2);
+			} catch(FileNotFoundException e) {
+				
+				String errmsg = String.format(
+				"""
+				words'-file not accessible under '%s' or '%s'. 
+				Please check if files are available and have the right permissions.
+				Some IDE-launched JVMs may have trouble accessing those files.
+				""", WORDPATH1, WORDPATH2);
+				
+				System.err.print(errmsg);
+				checker = null;
+			}
+		}
+
+		if(checker == null) {
+			System.err.println("Falling back to embedded dictionary");
+			checker = new Checker();
+		}
+
+		return checker;
+	}
 	
 	public TypoTattler(String[] args) throws IOException {
 		Path dict = null;
@@ -30,47 +68,13 @@ public class TypoTattler {
 			try {
 				checker = new Checker(dict);
 			} catch (IOException e) {
-				System.err.printf("Invalid dictionary file: %s"+ System.lineSeparator()
-				+ "Falling back to installed dictionary", dict);
+				System.err.println(e.getMessage());
+				System.err.println("Falling back to installed dictionary");
 				dict = null;
 			}
 		}
 		
-		final String WORDPATH1 = "/user/share/dict/words";
-		if(dict == null) {
-			dict = Path.of(WORDPATH1);
-			try {
-				checker = new Checker(dict);
-			} catch(IOException e) { dict = null;}
-		}
-		
-		final String WORDPATH2 = "/user/dict/words";
-		if(dict == null) {
-			dict = Path.of(WORDPATH2);
-			try {
-				checker = new Checker(dict);
-			} catch(IOException e) {
-				String errmsg = 
-						"""
-			'words'-file not accessible under '%s' or '%s'. 
-			Please check if files are available and have the right permissions.
-			Some IDE-launched JVMs may have trouble accessing those files.
-			
-						""";
-				System.err.printf(errmsg, WORDPATH1, WORDPATH2);
-				dict = null;
-			}
-		}
-		
-		if(dict == null) {
-			System.err.println("Falling back to embedded dictionary");
-			String location = "/resources/american-english-huge";
-			try {
-				checker = new Checker(location);
-			} catch(IOException e) {
-				throw new FileNotFoundException("Invalid standard dictionary file: " + location);
-			}
-		}
+		checker = initChecker();
 		
 		p = new Parser(toEdit, checker);	
 	}

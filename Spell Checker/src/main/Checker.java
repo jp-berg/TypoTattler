@@ -2,6 +2,7 @@ package main;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,7 +20,16 @@ public class Checker {
 	private int maxwordlength = -1;
 	private int[][] dlMatrix;
 	
-private void file2dict(Reader in) {
+
+	private boolean ismax(String word) {
+		if(maxwordlength < word.length()) {
+			maxwordlength = word.length();
+			return true;
+		}
+			return false;
+	}	
+	
+private void file2dict(Reader in) throws IOException {
 	try (BufferedReader reader = new BufferedReader(in)){
 		String word = null;
 		while((word = reader.readLine())!= null) {
@@ -27,45 +37,53 @@ private void file2dict(Reader in) {
 			ismax(word);
 		}
 		dlMatrix = new int[maxwordlength][maxwordlength];
-	}catch (IOException e) {
-		System.err.format("IOException: %s" + System.lineSeparator(), e);
+	} catch (IOException e) {
+		throw new FileNotFoundException("Cannot read dictionary file");
 	}
 }
 
-private boolean ismax(String word) {
-	if(maxwordlength < word.length()) {
-		maxwordlength = word.length();
-		return true;
+private void file2dict(File file) throws IOException {
+	FileReader fr;
+	try {
+		fr = new FileReader(file);
+	} catch (IOException e) {
+		throw new FileNotFoundException("Invalid dictionary file: " + file.getPath().toString());
 	}
-		return false;
+	file2dict(fr);
 }
 
 private void loadUserDict() throws IOException {
 	Path dir = FileHelpers.getDataDir("TypoTattler");
 	usrdict = dir.resolve("usrdict.txt").toFile();
-	Files.createDirectories(dir);
+	
+	try {
+		Files.createDirectories(dir);
+	} catch (IOException e) {
+		throw new IOException("Cannot create path to user dictionary: " + dir);
+	}
+	
+	try {
 	if(!usrdict.createNewFile()) {
 		file2dict(new FileReader(usrdict));
+	}
+	} catch (IOException e) {
+		throw new IOException("Cannot create user dictionary: " + usrdict);
 	}
 }
 
 Checker(Path dictpath) throws IOException {
 	File dictfile = dictpath.toFile();
-	if(!dictfile.isFile()) {
-		throw new IOException("Not a valid file.");
-	}
-	file2dict(new FileReader(dictfile));
-	loadUserDict();
-}
-
-Checker(String location) throws IOException{
-	var isr = new InputStreamReader(getClass().getResourceAsStream(location));
-	file2dict(isr);
+	file2dict(dictfile);
 	loadUserDict();
 }
 
 Checker() throws IOException{
-	this(Paths.get(System.getProperty("user.home"), "dict.txt"));
+	String embeddedDict = "/resources/american-english-huge";
+	var tmp = getClass().getResourceAsStream(embeddedDict);
+	if(tmp == null) throw new FileNotFoundException("Embedded dictionary not found: " + embeddedDict);
+	var isr = new InputStreamReader(tmp);
+	file2dict(isr);
+	loadUserDict();
 }
 
 public boolean ismistake(String word) {
