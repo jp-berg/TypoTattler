@@ -11,7 +11,7 @@ import java.util.List;
 public class TypoTattler {
 	
 	private Parser p;
-	private final Input in = new Input();
+	private final Input in;
 	private Path toEdit;
 	private boolean writeToDisk = false;
 	
@@ -76,10 +76,11 @@ public class TypoTattler {
 		
 		checker = initChecker();
 		
-		p = new Parser(toEdit, checker);	
+		p = new Parser(toEdit, checker);
+		in = new Input();
 	}
 	
-	public void mainloop() {
+	public void mainloop() throws IOException {
 		String correction;
 		int suggestion;
 		Mistake current = null;
@@ -189,6 +190,7 @@ public class TypoTattler {
 			if(writeToDisk) {
 				w2d();
 			}
+			in.close();
 		}
 	
 	private static final String errmsg_replace = """

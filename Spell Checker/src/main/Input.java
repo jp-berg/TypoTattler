@@ -1,4 +1,6 @@
 package main;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class Input {
+public class Input implements Closeable{
 	private Scanner scanner;
 	
 	public static final List<String> yesNo = List.of("Yes", "No");
@@ -151,7 +153,8 @@ public class Input {
 	}
 	
 	@Override
-	public void finalize() {
+	public void close() throws IOException {
 		scanner.close();
+		
 	}
 }

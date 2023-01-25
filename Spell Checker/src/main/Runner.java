@@ -1,5 +1,7 @@
 package main;
 
+import java.io.IOException;
+
 public class Runner {
 	
 	private final static String HELPMESSAGE = 
@@ -50,7 +52,13 @@ public class Runner {
 			return;
 		}
 		
-		tt.mainloop();
+		try {
+			tt.mainloop();
+		} catch (IOException e) {
+			System.err.println("Error while closing the scanner responsible for handling the user interaction");
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		
 		System.out.println("Exiting...");
 	}
