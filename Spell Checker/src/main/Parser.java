@@ -89,6 +89,7 @@ public class Parser implements Iterator<Mistake>{
 	
 	public String replace(Mistake m, String replacement) {
 		requireNonNull(m); requireNonNull(replacement);
+		if(!m.valid) return null;
 		String line = lines.get(m.lineno), word = m.wrongword;
 		if(m.uppercase) replacement.toUpperCase();
 		
