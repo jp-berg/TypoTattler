@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import static java.util.Objects.requireNonNull;
 
 public class Input implements Closeable{
 	private Scanner scanner;
@@ -42,6 +44,11 @@ public class Input implements Closeable{
 	}
 	
 	public int readInt(List<Integer> answers) {
+		requireNonNull(answers);
+		if(answers.isEmpty()) {
+			throw new IllegalArgumentException("List with allowed answers is empty");
+		}
+		
 		int answer;
 		answer = this.readInt();
 		while(!answers.contains(answer)) {
@@ -82,6 +89,11 @@ public class Input implements Closeable{
 	}
 	
 	public Character getC(List<Character> answers) {
+		requireNonNull(answers);
+		if(answers.isEmpty()) {
+			throw new IllegalArgumentException("List with allowed answers is empty");
+		}
+		
 		Character answer;
 		answer = this.getC();
 		while(!answers.contains(answer)) {
@@ -101,6 +113,10 @@ public class Input implements Closeable{
 	}
 	
 	public Character getChar(String promt, List<String> options) {
+		requireNonNull(options);
+		if(options.isEmpty()) {
+			throw new IllegalArgumentException("List with proposed options is empty");
+		}
 		System.out.print(promt);
 		return getChar(options);
 	}
@@ -110,6 +126,7 @@ public class Input implements Closeable{
 	}
 	
 	public static String concatOptions(List<String> options) {
+		if(options == null || options.isEmpty()) return "[]";
 		var sb = new StringBuilder();
 		sb.append("[");
 		for(var s: options) {
@@ -121,6 +138,7 @@ public class Input implements Closeable{
 	}
 	
 	public static List<Character> gatherFirstLetters(List<String> options){
+		if(options == null || options.isEmpty()) return Collections.emptyList();
 		var l = options.stream()
 				.map(s -> s.toLowerCase())
 				.map(c -> c.charAt(0))
@@ -136,7 +154,7 @@ public class Input implements Closeable{
 	}
 	
 	public Character getChar(List<String> options) {
-		if(options == null) throw new NullPointerException("list is null");
+		requireNonNull(options);
 		if(options.isEmpty()) throw new IllegalArgumentException("list is empty");
 		
 		return getC(concatOptions(options), gatherFirstLetters(options));

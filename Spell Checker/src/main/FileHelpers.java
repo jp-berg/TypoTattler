@@ -5,12 +5,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static java.util.Objects.requireNonNull;
 
 public final class FileHelpers {
 
 	private static final Pattern detectNameCounter = Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
 
 	public static String incrName(String name) {
+		if(name == null) name = "";
 		Matcher m = detectNameCounter.matcher(name);
 		if(m.find()) {
 			String num = name.substring(m.start() +1, name.lastIndexOf(')'));
@@ -27,6 +29,7 @@ public final class FileHelpers {
 	}
 
 	public static Path avoidNameCollision(Path path) {
+		requireNonNull(path);
 		String filename = path.getFileName().toString();
 		String extention = "";
 
@@ -47,6 +50,7 @@ public final class FileHelpers {
 
 	private static final String FSEP = System.getProperty("file.separator");
 	public static String joinStrings(String s1, String ... strings) {
+		requireNonNull(s1);
 		if(strings.length == 0) return s1;
 		int totalLength = s1.length();
 		for(var s: strings) totalLength += s.length() + 1;
@@ -78,6 +82,7 @@ public final class FileHelpers {
 	}
 
 	public static Path getXDGDir(String envName, String fallback, String appname) {
+		requireNonNull(envName); requireNonNull(fallback); requireNonNull(appname);
 		String xdgpath = System.getenv(envName);
 		Path path;
 		if(xdgpath == null || xdgpath.isBlank() || xdgpath.isEmpty() || !xdgpath.startsWith("/")) {
@@ -89,6 +94,7 @@ public final class FileHelpers {
 	}
 
 	public static String expandUser(String path) {
+		requireNonNull(path);
 		if(path.startsWith("~/")) path = path.replace("~", System.getProperty("user.home"));
 		return path;
 	}

@@ -46,7 +46,7 @@ public class Runner {
 		TypoTattler tt;
 		try {
 			tt = new TypoTattler(args);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			System.err.print("Error: " + e.getMessage());
 			System.err.println(". Exiting...");
 			return;

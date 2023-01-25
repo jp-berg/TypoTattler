@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import static java.util.Objects.requireNonNull;
 
 
 public class TypoTattler {
@@ -53,7 +54,7 @@ public class TypoTattler {
 	}
 	
 	public TypoTattler(String[] args) throws IOException {
-		
+		requireNonNull(args);
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }

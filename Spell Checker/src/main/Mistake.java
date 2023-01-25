@@ -1,4 +1,6 @@
 package main;
+import static java.util.Objects.requireNonNull;
+
 public class Mistake implements Comparable<Mistake>{
 	public String wrongword;
 	public Parser origin;
@@ -9,6 +11,7 @@ public class Mistake implements Comparable<Mistake>{
 	public boolean valid = true;
 	
 	Mistake(Parser origin, int lineno, String wrongword){
+		requireNonNull(origin); requireNonNull(wrongword);
 		this.wrongword = wrongword;
 		this.origin = origin;
 		this.lineno = lineno;

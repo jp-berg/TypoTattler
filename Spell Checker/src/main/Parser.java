@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.*;
 import java.util.stream.Collectors;
+import static java.util.Objects.requireNonNull;
 
 public class Parser implements Iterator<Mistake>{
 	public Path filepath;
@@ -26,6 +27,7 @@ public class Parser implements Iterator<Mistake>{
 	//https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
 	
 	public Parser(Path path, Checker checker) throws IOException {
+		requireNonNull(path); requireNonNull(checker);
 		lines = new ArrayList<>(Files.readAllLines(path));
 		mistakes = new ArrayList<Mistake>(lines.size());
 		ArrayList<Mistake> tmp;
@@ -86,6 +88,7 @@ public class Parser implements Iterator<Mistake>{
 	}
 	
 	public String replace(Mistake m, String replacement) {
+		requireNonNull(m); requireNonNull(replacement);
 		String line = lines.get(m.lineno), word = m.wrongword;
 		if(m.uppercase) replacement.toUpperCase();
 		
@@ -99,6 +102,7 @@ public class Parser implements Iterator<Mistake>{
 	}
 	 
 	public List<String> replaceAll(Mistake m, String replacement) {
+		requireNonNull(m); requireNonNull(replacement);
 		Mistake current = m;
 		var failedList = new ArrayList<String>();
 		String notFoundIn = null;
@@ -123,6 +127,7 @@ public class Parser implements Iterator<Mistake>{
 	}
 	
 	public String context(Mistake mistake) {
+		requireNonNull(mistake);
 		final int i = mistake.lineno;
 		String res = lines.get(i);
 		if(i-1 >= 0) res = lines.get(i-1) + System.lineSeparator() + res;
@@ -135,6 +140,7 @@ public class Parser implements Iterator<Mistake>{
 	}
 	
 	public boolean writetodisk(Path path) {
+		requireNonNull(path);
 		try(Writer w = new BufferedWriter(new FileWriter(path.toFile()))){
 			for(String s: lines) {
 				w.write(s);
@@ -147,6 +153,7 @@ public class Parser implements Iterator<Mistake>{
 	}
 	
 	public void ignore(Mistake m) {
+		requireNonNull(m);
 		checker.add(m.wrongword);
 		m.invalidateAll();
 		

@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.nio.file.*;
 import java.util.Comparator;
 import java.util.HashSet;
+import static java.util.Objects.requireNonNull;
 
 public class Checker {
 	
@@ -72,6 +73,8 @@ private void loadUserDict() throws IOException {
 }
 
 Checker(Path dictpath) throws IOException {
+	requireNonNull(dictpath);
+	
 	File dictfile = dictpath.toFile();
 	file2dict(dictfile);
 	loadUserDict();
@@ -87,6 +90,7 @@ Checker() throws IOException{
 }
 
 public boolean ismistake(String word) {
+	requireNonNull(word);
 	return !this.dict.contains(word.toLowerCase());
 }
 
@@ -97,7 +101,9 @@ public boolean ismistake(Mistake mistake) {
 public boolean addToUsrDict(Mistake m) {
 	return addToUsrDict(m.wrongword);
 }
+
 public boolean addToUsrDict(String word) {
+	requireNonNull(word);
 	try(BufferedWriter bw = new BufferedWriter(new FileWriter(usrdict, true))){
 		bw.append(word.toLowerCase() + System.lineSeparator());
 	} catch(IOException e) {
@@ -107,6 +113,7 @@ public boolean addToUsrDict(String word) {
 }
 
 public void add(String word) {
+	requireNonNull(word);
 	this.dict.add(word.toLowerCase());
 	if(this.ismax(word)) {
 		dlMatrix = new int[maxwordlength][maxwordlength];
@@ -114,6 +121,7 @@ public void add(String word) {
 }
 
 public String[] guess(String s){
+	requireNonNull(s);
 	s.toLowerCase();
 	record StrComp(String string, int dldist) {};
 	Comparator<StrComp> comp = Comparator.comparingInt(StrComp::dldist);
