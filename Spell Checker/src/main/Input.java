@@ -68,13 +68,13 @@ public class Input implements Closeable{
 		return answer;
 	}
 	
-	public int readInt(String promt, List<Integer> answers) {
-		System.out.println(promt);
+	public int readInt(String prompt, List<Integer> answers) {
+		System.out.println(prompt);
 		return this.readInt(answers);
 	}
 	
-	public int readInt(String promt, int start, int end) {
-		System.out.println(promt);
+	public int readInt(String prompt, int start, int end) {
+		System.out.println(prompt);
 		return this.readInt(start, end);
 	}
 	
@@ -83,8 +83,8 @@ public class Input implements Closeable{
 		return Character.toLowerCase(res);
 	}
 	
-	public Character getC(String promt) {
-		System.out.print(promt);
+	public Character getC(String prompt) {
+		System.out.print(prompt);
 		return this.getC();
 	}
 	
@@ -103,8 +103,8 @@ public class Input implements Closeable{
 		return answer;
 	}
 	
-	public Character getC(String promt, List<Character> answers) {
-		System.out.print(promt);
+	public Character getC(String prompt, List<Character> answers) {
+		System.out.print(prompt);
 		return this.getC(answers);
 	}
 	
@@ -112,12 +112,12 @@ public class Input implements Closeable{
 		return "(" + s.substring(0, 1).toUpperCase() + ")" + s.substring(1);
 	}
 	
-	public Character getChar(String promt, List<String> options) {
+	public Character getChar(String prompt, List<String> options) {
 		requireNonNull(options);
 		if(options.isEmpty()) {
 			throw new IllegalArgumentException("List with proposed options is empty");
 		}
-		System.out.print(promt);
+		System.out.print(prompt);
 		return getChar(options);
 	}
 	
@@ -165,8 +165,8 @@ public class Input implements Closeable{
 		return res;
 	}
 	
-	public String getS(String promt) {
-		System.out.print(promt);
+	public String getS(String prompt) {
+		System.out.print(prompt);
 		return this.getS();
 	}
 	

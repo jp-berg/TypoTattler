@@ -250,11 +250,11 @@ public class TypoTattler {
 					
 					if(Files.exists(path)) {
 						Path tmpPath = FileHelpers.avoidNameCollision(path);
-						String promt = String.format("File '%s' already exists. ", tmpstr);
+						String prompt = String.format("File '%s' already exists. ", tmpstr);
 						var options = List.of("Enter new name",
 								"Rename to '" + tmpPath.getFileName() + "'", 
 								"Overwrite");
-						c = in.getChar(promt, options);
+						c = in.getChar(prompt, options);
 						
 						switch(c) {
 						case 'e': continue;
