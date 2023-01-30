@@ -81,6 +81,8 @@ public class TypoTattler {
 		in = new Input();
 	}
 	
+	private boolean noExit = true; //only modified by {@link main.TypoTattler#exit}
+	
 	public void mainloop() throws IOException {
 		String correction;
 		int suggestion;
@@ -95,12 +97,12 @@ public class TypoTattler {
 		final String CANCELTEXT = "Cancelled - New command:";
 			
 		System.out.println(OPTIONS);
-			loop:
-			while(true) {
+		
+			while(noExit) {
 				
 				switch (c) {
 				case 'e':
-					if(in.getChar("Exit?", Input.yesNo) == 'y') break loop;
+					exit();
 					break;
 					
 				case 'a':
@@ -185,14 +187,17 @@ public class TypoTattler {
 				case '0': break;
 				}
 				
-				c = in.getC(possibleAnswers);	
+				if(noExit) c = in.getC(possibleAnswers);	
 			}
-			
-			if(writeToDisk) {
-				w2d();
-			}
+		}
+	
+	private void exit() throws IOException {
+		if(in.getChar("Exit?", Input.yesNo) == 'y') {
+			noExit = false;
+			if(writeToDisk) w2d();
 			in.close();
 		}
+	}
 	
 	private static final String errmsg_replace = """
 			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
