@@ -136,11 +136,9 @@ public class TypoTattler {
 					System.out.println(OPTIONS);
 					break;
 					
-				case 'l':
-					int i = in.readInt("Go to line: ", 0, p.lines.size());
-					p.toLine(i);
-					c = 'n';
-					continue;
+				case 'g':
+					goToLine();
+					break;
 				
 				case '0': break;
 				}
@@ -224,6 +222,19 @@ public class TypoTattler {
 		}
 		
 		System.out.println(CANCELTEXT);
+	}
+	
+	private void goToLine() throws IOException {
+		int i = in.readInt("Go to line: ", 0, p.lines.size());
+		p.toLine(i-1);
+		Mistake m = p.next();
+		if(!m.valid) {
+			next();
+		}else {
+			current = m;
+			System.out.println(current);
+		}
+		
 	}
 	
 	private static final String errmsg_replace = """
