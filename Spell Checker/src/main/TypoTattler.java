@@ -115,8 +115,8 @@ public class TypoTattler {
 					//fallthrough
 				
 				case 'i':
-					p.ignore(current);
-					//fallthrough	
+					ignore();
+					break;
 					
 				case 'n':
 					next();
@@ -194,6 +194,11 @@ public class TypoTattler {
 		} else {
 			System.out.println("Reached start of file.");
 		}
+	}
+	
+	private void ignore() throws IOException {
+		p.ignore(current);
+		next();
 	}
 	
 	private void exit() throws IOException {
