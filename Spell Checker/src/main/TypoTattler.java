@@ -83,6 +83,7 @@ public class TypoTattler {
 	
 	private Mistake current = null;
 	private boolean noExit = true; //only modified by {@link main.TypoTattler#exit}
+	private final String CANCELTEXT = "Cancelled - New command:";
 	
 	public void mainloop() throws IOException {
 		String correction;
@@ -104,24 +105,15 @@ public class TypoTattler {
 				case 'e':
 					exit();
 					break;
-					
 				case 'a':
-					c = 'y';
-					while(!p.checker.addToUsrDict(current) && c != 'n') {
-						c = in.getChar("Could not save to file. Retry?", Input.yesNoCancel);
-						if(c == 'c') {System.out.println(CANCELTEXT); break;}
-					};
-					c = 'n';
-					//fallthrough
-				
+					addToDict();
+					break;
 				case 'i':
 					ignore();
 					break;
-					
 				case 'n':
 					next();
 					break;
-				
 				case 'p':
 					previous();
 					break;
@@ -194,6 +186,18 @@ public class TypoTattler {
 		} else {
 			System.out.println("Reached start of file.");
 		}
+	}
+	
+	private void addToDict() throws IOException {
+		char c = 'y';
+		while(!p.checker.addToUsrDict(current) && c != 'n') {
+			c = in.getChar("Could not save to file. Retry?", Input.yesNoCancel);
+			if(c == 'c') {
+				System.out.println(CANCELTEXT);
+				return;
+			}
+		};
+		ignore();
 	}
 	
 	private void ignore() throws IOException {
