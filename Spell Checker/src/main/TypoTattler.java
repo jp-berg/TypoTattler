@@ -1,3 +1,4 @@
+/* LICENSING MISSING */
 package main;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,13 +9,22 @@ import java.nio.file.Paths;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
 
-
+/**
+ * Class containing the setup and the main loop of the program. 
+ * @author Jan Philipp Berg
+ * @vers 0.2
+ *
+ */
 public class TypoTattler {
 	
+	/** The parser that will analyze the file.*/
 	private Parser p;
+	/** The class used to communicate with the user*/
 	private final Input in;
+	/** The path to the file in need of correction*/
 	private Path toEdit;
 	private boolean writeToDisk = false;
+	
 	
 	private Checker initChecker() throws IOException {
 
@@ -53,8 +63,13 @@ public class TypoTattler {
 		return checker;
 	}
 	
+	/**
+	 * Constructor. Validates the command line arguments and tries to
+	 * handle errors.
+	 * @param args The command line arguments for the program
+	 * @throws IOException 
+	 */
 	public TypoTattler(String[] args) throws IOException {
-		requireNonNull(args);
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
 		 }
@@ -85,6 +100,10 @@ public class TypoTattler {
 	private boolean noExit = true; //only modified by {@link main.TypoTattler#exit}
 	private final String CANCELTEXT = "Cancelled - New command:";
 	
+	/**
+	 * Iterates throught the text {@link main.Mistake} by {@link main.Mistake} guided by
+	 * user input, offering various operations for correcting them.
+	 */
 	public void mainloop() throws IOException {
 		final List<String> options = List.<String>of("next", "previous", "suggestions", 
 				"revision", "add to dictionary", "ignore all", "context", "go to line", 
@@ -110,7 +129,7 @@ public class TypoTattler {
 				case 'g' -> goToLine();
 				}
 			}
-		}
+	}
 	
 	private void next() throws IOException {
 		if(p.hasNext()) {
@@ -206,7 +225,13 @@ public class TypoTattler {
 			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
 			'%s' was not found in the recorded line in the following cases:
 			""" + System.lineSeparator();
-	
+
+	/**
+	 * Replaces the mistake with a user provided alternative.
+	 * 
+	 * @param current The mistake to replace
+	 * @param replacement The string to correct the spelling error in mistake
+	 */
 	private void replace(Mistake current, String replacement) throws IOException {
 		char c = 'n';
 		List<String> failed = null;
@@ -238,6 +263,10 @@ public class TypoTattler {
 		}
 	}
 	
+	/**
+	 * Writes the modified file (if desired by the user). Detects name collisions with
+	 * existing files and offers new names to avoid overwriting existing files.
+	 */
 	private void w2d() {
 		
 		boolean correctpath = true;

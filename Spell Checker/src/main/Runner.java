@@ -2,8 +2,15 @@ package main;
 
 import java.io.IOException;
 
+/**
+ * Runner for the TypoTattler. Entry point for the program.
+ * @author Jan Philipp Berg
+ * @vers 0.1
+ *
+ */
 public class Runner {
 	
+	/** A message showing detailed instructions on how to use the program*/
 	private final static String HELPMESSAGE = 
 			"""
 			SYNOPSIS
@@ -31,6 +38,11 @@ public class Runner {
 			""" + System.lineSeparator();
 	
 
+	/**
+	 * Main method for the TypoTattler. Responsible for basic command line argument checking,
+	 * creating a new instance and launching the mainloop.
+	 * @param args command line arguments
+	 */
 	public static void main(String[] args) {
 		
 		if(args.length > 2) {

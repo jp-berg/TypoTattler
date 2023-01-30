@@ -1,3 +1,4 @@
+/* LICENSING MISSING */
 package main;
 
 import java.nio.file.Files;
@@ -7,10 +8,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Class containing methods aiding in the handling of files.
+ * @author Jan Philipp Berg
+ * @vers 0.2
+ *
+ */
 public final class FileHelpers {
 
-	private static final Pattern detectNameCounter = Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
-
+	private static final Pattern detectNameCounter = 
+			Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
+	
+	/**
+	 * 'Increments' the name of a file.
+	 * Eg. 	-'foo' -> 'foo(1)'
+	 * 		-'foo(1)' -> 'foo(2)'
+	 * 		-'bar(21)' -> 'bar(22)'
+	 * 		- etc
+	 * @param name The name of the file (without the extension)
+	 * @return The 'incremented' name
+	 */
 	public static String incrName(String name) {
 		if(name == null) name = "";
 		Matcher m = detectNameCounter.matcher(name);
@@ -27,7 +44,15 @@ public final class FileHelpers {
 		return name;
 		
 	}
-
+	
+	/**
+	 * If the provided path leads to a file that already exists, this function will
+	 * generate a new name for the file with {@link main.FileHelpers#incrName(String)}
+	 * until it gets a path that does not conflict with any of the other files in the
+	 * folder.
+	 * @param path The colliding path
+	 * @return A new path for the file in the same folder
+	 */
 	public static Path avoidNameCollision(Path path) {
 		requireNonNull(path);
 		String filename = path.getFileName().toString();
@@ -93,12 +118,21 @@ public final class FileHelpers {
 		return path;
 	}
 
+	/**
+	 * Subsitutes a leading tilde with the home directory of the current user.
+	 * @param path The string indicating the path
+	 * @return A string with the tilde expanded to the home directory
+	 */
 	public static String expandUser(String path) {
 		requireNonNull(path);
 		if(path.startsWith("~/")) path = path.replace("~", System.getProperty("user.home"));
 		return path;
 	}
 
+	/** Wrapper for {@link main.FileHelpers#expandUser(String)}
+	 * @param path The path to expand
+	 * @return The expanded path
+	 */
 	public static Path expandUser(Path path) {
 		return Paths.get(expandUser(path.toString()));
 	}
