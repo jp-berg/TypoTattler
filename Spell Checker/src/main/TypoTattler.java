@@ -81,12 +81,12 @@ public class TypoTattler {
 		in = new Input();
 	}
 	
+	private Mistake current = null;
 	private boolean noExit = true; //only modified by {@link main.TypoTattler#exit}
 	
 	public void mainloop() throws IOException {
 		String correction;
 		int suggestion;
-		Mistake current = null;
 		char c = 'n';
 		final List<String> options = List.<String>of("next", "previous", "suggestions", 
 				"revision", "add to dictionary", "ignore all", "context", "go to line", 
@@ -119,25 +119,11 @@ public class TypoTattler {
 					//fallthrough	
 					
 				case 'n':
-					if(p.hasNext()) {
-						current = p.next();
-						System.out.println(current);
-					}else{
-						System.out.print("End of file.");
-						c = 'e';
-						continue;
-					}
+					next();
 					break;
 				
 				case 'p':
-					if(p.hasPrevious()) {
-						current = p.previous();
-						System.out.println(current);
-					} else {
-						System.out.println("Reached start of file.");
-						c = 'n';
-						continue;
-					}
+					previous();
 					break;
 					
 				case 'r':
@@ -190,6 +176,25 @@ public class TypoTattler {
 				if(noExit) c = in.getC(possibleAnswers);	
 			}
 		}
+	
+	private void next() throws IOException {
+		if(p.hasNext()) {
+			current = p.next();
+			System.out.println(current);
+		}else{
+			System.out.print("End of file.");
+			exit();
+		}
+	}
+	
+	private void previous() throws IOException {
+		if(p.hasPrevious()) {
+			current = p.previous();
+			System.out.println(current);
+		} else {
+			System.out.println("Reached start of file.");
+		}
+	}
 	
 	private void exit() throws IOException {
 		if(in.getChar("Exit?", Input.yesNo) == 'y') {
