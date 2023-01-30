@@ -86,64 +86,29 @@ public class TypoTattler {
 	private final String CANCELTEXT = "Cancelled - New command:";
 	
 	public void mainloop() throws IOException {
-		String correction;
-		int suggestion;
-		char c = 'n';
 		final List<String> options = List.<String>of("next", "previous", "suggestions", 
 				"revision", "add to dictionary", "ignore all", "context", "go to line", 
 				"option overview", "exit");
 		final String OPTIONS = Input.concatOptions(options);
 		final List<Character> possibleAnswers = Input.gatherFirstLetters(options);
-		
-		final String CANCELTEXT = "Cancelled - New command:";
-			
 		System.out.println(OPTIONS);
+		next();
 		
+		char c;
 			while(noExit) {
-				
+				c = in.getC(possibleAnswers);
 				switch (c) {
-				case 'e':
-					exit();
-					break;
-				case 'a':
-					addToDict();
-					break;
-				case 'i':
-					ignore();
-					break;
-				case 'n':
-					next();
-					break;
-				case 'p':
-					previous();
-					break;
-					
-				case 'r':
-					revision();
-					break;
-					
-				case 's':
-					suggestion();
-					break;
-					
-				
-				case 'c':
-					System.out.println(p.context(current));
-					break;
-					
-				
-				case 'o':
-					System.out.println(OPTIONS);
-					break;
-					
-				case 'g':
-					goToLine();
-					break;
-				
-				case '0': break;
+				case 'e' -> exit();
+				case 'a' -> addToDict();
+				case 'i' -> ignore();
+				case 'n' -> next();
+				case 'p' -> previous();
+				case 'r' -> revision();
+				case 's' -> suggestion();
+				case 'c' -> System.out.println(p.context(current));
+				case 'o' -> System.out.println(OPTIONS);
+				case 'g' -> goToLine();
 				}
-				
-				if(noExit) c = in.getC(possibleAnswers);	
 			}
 		}
 	
@@ -199,7 +164,7 @@ public class TypoTattler {
 							"add word to dictionary and replace", 
 							"no", "cancel"));
 			if(c == 'n') {
-				revision(); //possible stackoverflow
+				revision(); //stackoverflow unreasonable, 6476 recursions necessary in testing 
 				return;
 			}
 			if(c == 'c') {
