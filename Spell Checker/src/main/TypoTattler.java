@@ -119,31 +119,11 @@ public class TypoTattler {
 					break;
 					
 				case 'r':
-					correction = in.getS("Revision: ");
-					if(p.checker.ismistake(correction)) {
-						c = in.getChar("Word not in dictionary. Replace anyways?", Input.yesNoCancel);
-						if(c == 'n') {
-								c = 'r';
-								continue;
-						}
-						if(c == 'c') {System.out.println(CANCELTEXT); break;}
-					}
-					c = this.replace(current, correction);
-					if(c != '0') continue;
-					System.out.println(CANCELTEXT);
+					revision();
 					break;
 					
 				case 's':
-					current.getSuggestions();
-					System.out.print("(0) - Cancel || ");
-					current.printSuggestions();
-					suggestion = in.readInt(0 , current.suggestions.length);
-					if(suggestion != 0) {
-						c = this.replace(current, current.suggestions[suggestion-1]);
-						if(c != '0') continue;
-					}
-					
-					System.out.print(CANCELTEXT);
+					suggestion();
 					break;
 					
 				
@@ -213,12 +193,45 @@ public class TypoTattler {
 		}
 	}
 	
+	private void revision() throws IOException {
+		String correction = in.getS("Revision: ");
+		if(p.checker.ismistake(correction)) {
+			char c = in.getChar("Word not in dictionary. Replace anyways? ", 
+					List.of("replace", 
+							"add word to dictionary and replace", 
+							"no", "cancel"));
+			if(c == 'n') {
+				revision(); //possible stackoverflow
+				return;
+			}
+			if(c == 'c') {
+				System.out.println(CANCELTEXT);
+				return; 
+			}
+		}
+		this.replace(current, correction);
+	}
+	
+	private void suggestion() throws IOException {
+		current.getSuggestions();
+		System.out.print("(0) - Cancel || ");
+		current.printSuggestions();
+		int suggestion = in.readInt(0 , current.suggestions.length);
+		
+		if(suggestion != 0) {
+			this.replace(current, current.suggestions[suggestion-1]);
+			return;
+		}
+		
+		System.out.println(CANCELTEXT);
+	}
+	
 	private static final String errmsg_replace = """
 			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
 			'%s' was not found in the recorded line in the following cases:
 			""" + System.lineSeparator();
 	
-	private char replace(Mistake current, String replacement) {
+	private void replace(Mistake current, String replacement) throws IOException {
 		char c = 'n';
 		List<String> failed = null;
 		
@@ -232,7 +245,8 @@ public class TypoTattler {
 			String tmp = p.replace(current, replacement);
 			if(tmp != null) failed = List.of(tmp);
 		}else {
-			c = '0';
+			System.out.println(CANCELTEXT);
+			return;
 		}
 		
 		if(failed != null) {
@@ -240,12 +254,12 @@ public class TypoTattler {
 			for(var element: failed) {
 				System.err.println(element + System.lineSeparator());
 			}
-			c = 'r';
+			return;
 		} else {
 			writeToDisk = true;
-			c = 'n';
+			next();
+			return;
 		}
-		return c;
 	}
 	
 	private void w2d() {
