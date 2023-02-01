@@ -1,13 +1,11 @@
 /* LICENSING MISSING */
 package main;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Class containing the setup and the main loop of the program. 
