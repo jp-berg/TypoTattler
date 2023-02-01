@@ -20,11 +20,13 @@ public final class FileHelpers {
 			Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
 	
 	/**
-	 * 'Increments' the name of a file.
-	 * Eg. 	-'foo' -> 'foo(1)'
-	 * 		-'foo(1)' -> 'foo(2)'
-	 * 		-'bar(21)' -> 'bar(22)'
-	 * 		- etc
+	 * 'Increments' the name of a file, eg. 
+	 * <pre>
+	 *  	-'foo' -> 'foo(1)'
+	 * 	-'foo(1)' -> 'foo(2)'
+	 * 	-'bar(21)' -> 'bar(22)'
+	 * 	- etc
+	 * </pre>
 	 * @param name The name of the file (without the extension)
 	 * @return The 'incremented' name
 	 */
@@ -72,8 +74,18 @@ public final class FileHelpers {
 		return path;
 
 	}
-
+	
+	/** The file separator of the current platform */
 	private static final String FSEP = System.getProperty("file.separator");
+	
+	/**
+	 * Joins one or more strings together while separating them with the file separator
+	 * of the current platform. The join preserves the order of the arguments.
+	 * Example: ("foo", "bar", "baz") -> "foo/bar/baz" (on Linux)
+	 * @param s1 the first string
+	 * @param strings the subsequent strings
+	 * @return the Strings joined with the file separator dividing them
+	 */
 	public static String joinStrings(String s1, String ... strings) {
 		requireNonNull(s1);
 		if(strings.length == 0) return s1;
@@ -88,24 +100,59 @@ public final class FileHelpers {
 		return sb.toString();
 	}
 
-	//https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-
+	/**
+	 * Returns the config-file-directory according to the XDG Base Directory Specification.
+	 * @param appname the name of the program
+	 * @return the config-file-directory corresponding to the appname
+	 * @see <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">
+	 * XDG Base Directory Specification</a>
+	 */
 	public static Path getConfigDir(String appname) {
 		return getXDGDir("XDG_CONFIG_HOME", ".config", appname);
 	}
 
+	/**
+	 * Returns the data-file-directory according to the XDG Base Directory Specification.
+	 * @param appname the name of the program
+	 * @return the data-file-directory corresponding to the appname
+	 * @see <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">
+	 * XDG Base Directory Specification</a>
+	 */
 	public static Path getDataDir(String appname) {
 		return getXDGDir("XDG_DATA_HOME", joinStrings(".local", "share"), appname);
 	}
 
+	/**
+	 * Returns the state-file-directory according to the XDG Base Directory Specification.
+	 * @param appname the name of the program
+	 * @return the state-file-directory corresponding to the appname
+	 * @see <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">
+	 * XDG Base Directory Specification</a>
+	 */
 	public static Path getStateDir(String appname) {
 		return getXDGDir("XDG_STATE_HOME", joinStrings(".local", "state"), appname);
 	}
 	
+	/**
+	 * Returns the cache-file-directory according to the XDG Base Directory Specification.
+	 * @param appname the name of the program
+	 * @return the cache-file-directory corresponding to the appname
+	 * @see <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">
+	 * XDG Base Directory Specification</a>
+	 */
 	public static Path getCacheDir(String appname) {
 		return getXDGDir("XGD_STATE_HOME", ".cache", appname);
 	}
 
+	/**
+	 * Creates a XDG-Base-Directory-Specification-conforming path to an app-specific directory.
+	 * @param envName the name of the environment-variable that may store information over the desired XDG-path
+	 * @param fallback the path that should be used, if envName is not set or empty
+	 * @param appname the name of the program
+	 * @return the XDG-Base-Directory-Specification-conforming path to an app-specific directory
+	 * @see <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">
+	 * XDG Base Directory Specification</a>
+	 */
 	public static Path getXDGDir(String envName, String fallback, String appname) {
 		requireNonNull(envName); requireNonNull(fallback); requireNonNull(appname);
 		String xdgpath = System.getenv(envName);
@@ -119,7 +166,7 @@ public final class FileHelpers {
 	}
 
 	/**
-	 * Subsitutes a leading tilde with the home directory of the current user.
+	 * Substitutes a leading tilde with the home directory of the current user.
 	 * @param path The string indicating the path
 	 * @return A string with the tilde expanded to the home directory
 	 */
