@@ -79,28 +79,6 @@ public final class FileHelpers {
 	private static final String FSEP = System.getProperty("file.separator");
 	
 	/**
-	 * Joins one or more strings together while separating them with the file separator
-	 * of the current platform. The join preserves the order of the arguments.
-	 * Example: ("foo", "bar", "baz") -> "foo/bar/baz" (on Linux)
-	 * @param s1 the first string
-	 * @param strings the subsequent strings
-	 * @return the Strings joined with the file separator dividing them
-	 */
-	public static String joinStrings(String s1, String ... strings) {
-		requireNonNull(s1);
-		if(strings.length == 0) return s1;
-		int totalLength = s1.length();
-		for(var s: strings) totalLength += s.length() + 1;
-		StringBuilder sb = new StringBuilder(totalLength);
-		sb.append(s1);
-		for(var s: strings) {
-			sb.append(FSEP);
-			sb.append(s);
-		}
-		return sb.toString();
-	}
-	
-	/**
 	 * Returns the config-file-directory according to the XDG Base Directory Specification.
 	 * @param appname the name of the program
 	 * @return the config-file-directory corresponding to the appname
@@ -119,7 +97,7 @@ public final class FileHelpers {
 	 * XDG Base Directory Specification</a>
 	 */
 	public static Path getDataDir(String appname) {
-		return getXDGDir("XDG_DATA_HOME", joinStrings(".local", "share"), appname);
+		return getXDGDir("XDG_DATA_HOME", String.join(FSEP, ".local", "share"), appname);
 	}
 
 	/**
@@ -130,7 +108,7 @@ public final class FileHelpers {
 	 * XDG Base Directory Specification</a>
 	 */
 	public static Path getStateDir(String appname) {
-		return getXDGDir("XDG_STATE_HOME", joinStrings(".local", "state"), appname);
+		return getXDGDir("XDG_STATE_HOME", String.join(FSEP, ".local", "state"), appname);
 	}
 	
 	/**
