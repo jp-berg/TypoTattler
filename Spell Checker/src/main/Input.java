@@ -59,10 +59,14 @@ public class Input implements Closeable{
 	}
 	
 	public int readInt(int start, int end) {
+		if(start >= end -1) {
+			throw new IllegalArgumentException("'start' must be smaller than 'end'-1");
+		}
 		int answer;
 		answer = this.readInt();
 		while((start > answer && answer > end)) {
-			System.err.println("Answer out of bounds.");
+			System.err.printf("Answer has to be between %d and %d (exclusive).%s", 
+					start, end, System.lineSeparator());
 			answer = this.readInt();
 		}
 		return answer;
