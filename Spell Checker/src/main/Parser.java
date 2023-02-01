@@ -74,10 +74,14 @@ public class Parser implements Iterator<Mistake>{
 	 * @param path path to the file that is supposed to be checked for mistakes
 	 * @param checker the checker responsible for identifying mistakes
 	 * @throws IOException the IOException from {@link java.nio.file.Files#readAllLines(Path)}
+	 * @throws IllegalArgumentException if the provided file contains no lines or if no mistakes have been found
 	 */
 	public Parser(Path path, Checker checker) throws IOException {
 		requireNonNull(path); requireNonNull(checker);
 		lines = new ArrayList<>(Files.readAllLines(path));
+		if(lines.size() == 0) {
+			throw new IllegalArgumentException("The file to check is empty.");
+		}
 		mistakes = new ArrayList<Mistake>(lines.size());
 		ArrayList<Mistake> tmp;
 		HashMap<String, Mistake> s2m = new HashMap<>(lines.size());
@@ -92,6 +96,9 @@ public class Parser implements Iterator<Mistake>{
 			
 			mistakes.addAll(tmp);
 			lineno++;
+		}
+		if(mistakes.isEmpty()) {
+			throw new IllegalArgumentException("No mistakes found.");
 		}
 		mistakes.trimToSize();
 		filepath = path;
