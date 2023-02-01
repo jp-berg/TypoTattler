@@ -44,14 +44,14 @@ public class Parser implements Iterator<Mistake>{
 	/** The line of the mistake the iterator currently is at*/
 	public int currentline = -1;
 	
-	/** The {@ling main.Parser#noPunctuation}-regex-pattern in String-form*/
+	/** The {@link main.Parser#noPunctuation}-regex-pattern in String-form*/
 	private final String noPunctuationRegex 
 						= "(?!\\b'\\b)\\p{Punct}|\\p{Space}|\\p{Cntrl}|\\p{Digit}";
 	
 	/**The regex used to tokenize the file from {@link #filepath} into words.
 	 * Divides happen on the POSIX character classes for whitespace-, control-, digit-
 	 * and punctuation-characters. The latter excludes apostrophes between two word
-	 * boundaries, eg. does not match the apostrophe in
+	 * boundaries, eg. does not match the apostrophe in <pre>
 	 * 		- "wasn't"
 	 * 		- "I'd"
 	 * 		- "1's"
@@ -61,7 +61,7 @@ public class Parser implements Iterator<Mistake>{
 	 * 		- "the boys' room" -> "the", "boys", ("",) "room"
 	 * 		- "the so called 'coolest dude'" -> "the", "so", "called, ("",) "coolest", "dude" (,"")
 	 * 		- "its'" -> "its"
-	 * 
+	 * </pre>
 	 * (//https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html)
 	 */
 	private final Pattern noPunctuation = Pattern.compile(noPunctuationRegex); 
@@ -168,6 +168,7 @@ public class Parser implements Iterator<Mistake>{
 	 * representation.
 	 * @param m the mistake to be replaced
 	 * @param replacement the corrected spelling of the mistake
+	 * @return null if the mistake was found in the specified line, the line if not
 	 * @throws IllegalArgumentException if the line referenced in the mistake does not contain the mistake
 	 */
 	public String replace(Mistake m, String replacement) {
@@ -190,6 +191,7 @@ public class Parser implements Iterator<Mistake>{
 	 * same spelling.
 	 * @param m the mistake containing the spelling to be replaced
 	 * @param replacement the corrected spelling of the mistake
+	 * @return null if no error occurred, List of all lines, where the mistake could not be matched to the line
 	 */
 	public List<String> replaceAll(Mistake m, String replacement) {
 		requireNonNull(m); requireNonNull(replacement);
@@ -199,7 +201,9 @@ public class Parser implements Iterator<Mistake>{
 		int lastLine = -1;
 		
 		do {
-			if(current.lineno != lastLine) { //The same mistake can occur multiple times in the same line, but will be corrected the first time it is encountered					
+			//The same mistake can occur multiple times in the same line, 
+			//but will be corrected the first time it is encountered
+			if(current.lineno != lastLine) { 					
 				notFoundIn = this.replace(current, replacement);
 				if(notFoundIn != null) {
 					failedList.add("" + current.lineno+1 + ": " + notFoundIn);

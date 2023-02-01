@@ -5,12 +5,12 @@ import java.io.IOException;
 /**
  * Runner for the TypoTattler. Entry point for the program.
  * @author Jan Philipp Berg
- * @vers 0.1
+ * @vers 0.2
  *
  */
 public class Runner {
 	
-	/** A message showing detailed instructions on how to use the program*/
+	/** A message showing detailed instructions on how to use the program: {@value}*/
 	private final static String HELPMESSAGE = 
 			"""
 			SYNOPSIS
@@ -40,7 +40,7 @@ public class Runner {
 
 	/**
 	 * Main method for the TypoTattler. Responsible for basic command line argument checking,
-	 * creating a new instance and launching the mainloop.
+	 * creating a new instance and launching the {@link main.TypoTattler#mainloop}.
 	 * @param args command line arguments
 	 */
 	public static void main(String[] args) {

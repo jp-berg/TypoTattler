@@ -23,9 +23,20 @@ public class TypoTattler {
 	private final Input in;
 	/** The path to the file in need of correction*/
 	private Path toEdit;
-	private boolean writeToDisk = false;
 	
 	
+	/**
+	 * Initializes the {@link main.Checker} if there was no dictionary provided with the
+	 * command line arguments or if the provided dictionary was invalid. The method tries
+	 * to find a Unix-word-file in the locations specified by {@code WORDPATH1} or 
+	 * {@code WORDPATH2}. If that fails it tries to access the embedded dictionary.
+	 * Installed dictionaries are preferred, because it is more likely that they reflect
+	 * the users idea of what a dictionary should contain (or in what language). The embedded
+	 * dictionary is a crutch in case those files are inaccessible, but it is unlikely that 
+	 * this is the best choice for every user ('american-english-hughe' as of version 0.2).
+	 * @return an initialized dictionary
+	 * @throws IOException if none of the dictionaries can be found or they are inaccessible
+	 */
 	private Checker initChecker() throws IOException {
 
 		Checker checker = null;
@@ -67,7 +78,7 @@ public class TypoTattler {
 	 * Constructor. Validates the command line arguments and tries to
 	 * handle errors.
 	 * @param args The command line arguments for the program
-	 * @throws IOException 
+	 * @throws IOException when there was a problem with the dicts or with the file provided for editing
 	 */
 	public TypoTattler(String[] args) throws IOException {
 		if(args.length < 1 && args.length > 2) {
@@ -96,12 +107,13 @@ public class TypoTattler {
 		in = new Input();
 	}
 	
+	/** The {@link main.Mistake} to be analyzed and edited by the user*/
 	private Mistake current = null;
-	private boolean noExit = true; //only modified by {@link main.TypoTattler#exit}
-	private final String CANCELTEXT = "Cancelled - New command:";
+	/** Controls the loop in {@link #mainloop()}. Must only be modified by {@link #exit()}*/
+	private boolean noExit = true;
 	
 	/**
-	 * Iterates throught the text {@link main.Mistake} by {@link main.Mistake} guided by
+	 * Iterates through the text {@link main.Mistake} by {@link main.Mistake} guided by
 	 * user input, offering various operations for correcting them.
 	 */
 	public void mainloop() throws IOException {
@@ -131,6 +143,19 @@ public class TypoTattler {
 			}
 	}
 	
+	/** {@value} */
+	private static final String CANCELTEXT = "Cancelled - New command:";
+	/** Set only by {@link #replace(Mistake, String)} it tells {@link #exit()} whether
+	 * {@link #toEdit} has to be saved to disk because the file has been edited.
+	 */
+	private boolean writeToDisk = false;
+	
+	/**
+	 * Gets the next valid mistake and saves it in {@link TypoTattler#current}
+	 * if available, otherwise (when reaching the end of the file {@link TypoTattler#toEdit})
+	 * it will state this and invoke {@link TypoTattler#exit()}.
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void next() throws IOException {
 		if(p.hasNext()) {
 			current = p.next();
@@ -141,6 +166,12 @@ public class TypoTattler {
 		}
 	}
 	
+	/**
+	 * Gets the previous valid mistake and saves it in {@link TypoTattler#current}
+	 * if available, otherwise (when reaching the beginning of the file {@link TypoTattler#toEdit}) 
+	 * it will simply state this.
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void previous() throws IOException {
 		if(p.hasPrevious()) {
 			current = p.previous();
@@ -150,6 +181,11 @@ public class TypoTattler {
 		}
 	}
 	
+	/**
+	 * Adds the misspelling in {@link TypoTattler#current} the dictionary of the
+	 * user and invokes {@link TypoTattler#ignore()}
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void addToDict() throws IOException {
 		char c = 'y';
 		while(!p.checker.addToUsrDict(current) && c != 'n') {
@@ -162,11 +198,23 @@ public class TypoTattler {
 		ignore();
 	}
 	
+	/**
+	 * Invalidates all {@link main.Mistake} containing the same misspelling.
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void ignore() throws IOException {
 		p.ignore(current);
 		next();
 	}
 	
+	/**
+	 * Gets called, if the end of the file has been reached or via direct request from
+	 * the user. Breaks the loop in {@link TypoTattler#mainloop()}, saves the
+	 * file {@link TypoTattler#toEdit} if any changes have been made and closes
+	 * {@link TypoTattler#in}. Because of the latter it must be the only exit point for
+	 * the mainloop (aside from any fatal crashes).
+	 * @throws IOException if an I/O-Error while closing {@link TypoTattler#in} occurs
+	 */
 	private void exit() throws IOException {
 		if(in.getChar("Exit?", Input.yesNo) == 'y') {
 			noExit = false;
@@ -175,6 +223,11 @@ public class TypoTattler {
 		}
 	}
 	
+	/**
+	 *Provides a dialogue in which the user can enter a correction to the misspelling in
+	 *{@link TypoTattler#current}. 
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void revision() throws IOException {
 		String correction = in.getS("Revision: ");
 		if(p.checker.ismistake(correction)) {
@@ -194,6 +247,13 @@ public class TypoTattler {
 		this.replace(current, correction);
 	}
 	
+	/**
+	 * Presents the user with replacement options for the misspelling in {@link #current}.
+	 * These options are generated by {@link main.Checker#guess(String)}. The user is
+	 * able to choose a replacement or to cancel. The replacement is inserted via 
+	 * {@link #replace(Mistake, String)} into the line.
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void suggestion() throws IOException {
 		current.getSuggestions();
 		System.out.print("(0) - Cancel || ");
@@ -208,9 +268,14 @@ public class TypoTattler {
 		System.out.println(CANCELTEXT);
 	}
 	
+	/**
+	 * Inserts the first {@link main.Mistake} following the beginning of the line
+	 * corresponding to the user-provided number into {@link #current}
+	 * @throws IOException @see {@link TypoTattler#exit()}
+	 */
 	private void goToLine() throws IOException {
 		int i = in.readInt("Go to line: ", 0, p.lines.size());
-		p.toLine(i-1);
+		p.toLine(i-1); //toLine() works with zero-based numbers -> i-1
 		Mistake m = p.next();
 		if(!m.valid) {
 			next();
@@ -221,13 +286,18 @@ public class TypoTattler {
 		
 	}
 	
-	private static final String errmsg_replace = """
+	/** {@value} */
+	private static final String errmsg_replace = 
+			"""
 			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
 			'%s' was not found in the recorded line in the following cases:
-			""" + System.lineSeparator();
+			""" 
+			+ System.lineSeparator();
 
 	/**
-	 * Replaces the mistake with a user provided alternative.
+	 * Replaces the mistake with a user provided alternative. If the misspelling cannot
+	 * be found in the line specified by {@link main.Mistake} the line will be printed
+	 * to screen.
 	 * 
 	 * @param current The mistake to replace
 	 * @param replacement The string to correct the spelling error in mistake
