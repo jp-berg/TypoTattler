@@ -85,7 +85,7 @@ public class Parser implements Iterator<Mistake>{
 		for(String line: lines) {
 			tmp = noPunctuation.splitAsStream(line)
 					.filter(s -> s.length() > 0)
-					.filter(s -> checker.ismistake(s))
+					.filter(s -> checker.isMistake(s))
 					.map(s -> new Mistake(this, lineno, s))
 					.map(m -> chainSameMistakes(m, s2m))
 					.collect(Collectors.toCollection(ArrayList::new));
@@ -237,12 +237,12 @@ public class Parser implements Iterator<Mistake>{
 	}
 	
 	/**
-	 * Wrapper for {@link #writetodisk(Path)}. Passes {@link #filepath} to
+	 * Wrapper for {@link #writeToDisk(Path)}. Passes {@link #filepath} to
 	 * the function and thus overwriting the original file with the corrected version.
 	 * @return true if the file was successfully written
 	 */
-	public boolean writetodisk() {
-		 return writetodisk(filepath);
+	public boolean writeToDisk() {
+		 return writeToDisk(filepath);
 	}
 	
 	/**
@@ -250,7 +250,7 @@ public class Parser implements Iterator<Mistake>{
 	 * @param path the location where the transformed version is supposed to be saved
 	 * @return true if the file was successfully written
 	 */
-	public boolean writetodisk(Path path) {
+	public boolean writeToDisk(Path path) {
 		requireNonNull(path);
 		try(Writer w = new BufferedWriter(new FileWriter(path.toFile()))){
 			for(String s: lines) {
@@ -285,7 +285,7 @@ public class Parser implements Iterator<Mistake>{
 			mistakeno = 0;
 			return;
 		}
-		mistakeno = binsearchMistakes(l);	
+		mistakeno = binSearchMistakes(l);	
 	}
 	
 	/**
@@ -293,7 +293,7 @@ public class Parser implements Iterator<Mistake>{
 	 * @param l the line number the iterator is supposed to be moved to
 	 * @return the number of the first mistake starting with line l
 	 */
-	private int binsearchMistakes(int l) {
+	private int binSearchMistakes(int l) {
 		int L = 0;
 		int R = mistakes.size()-1;
 		int m = 0;

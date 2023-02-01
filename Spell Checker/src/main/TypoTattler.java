@@ -228,7 +228,7 @@ public class TypoTattler {
 	 */
 	private void revision() throws IOException {
 		String correction = in.getS("Revision: ");
-		if(p.checker.ismistake(correction)) {
+		if(p.checker.isMistake(correction)) {
 			char c = in.getChar("Word not in dictionary. Replace anyways? ", 
 					List.of("replace", 
 							"add word to dictionary and replace", 
@@ -343,7 +343,7 @@ public class TypoTattler {
 		char c = in.getChar(tmpstr, Input.yesNo);
 		
 		if(c == 'y') {
-			correctpath = p.writetodisk(path);
+			correctpath = p.writeToDisk(path);
 		}
 		if(c == 'n' || !correctpath) {
 			
@@ -368,7 +368,7 @@ public class TypoTattler {
 						case 'o':break;
 						}
 					}
-					correctpath = p.writetodisk(path);
+					correctpath = p.writeToDisk(path);
 			}while(!correctpath);
 		}
 	}

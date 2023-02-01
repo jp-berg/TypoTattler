@@ -198,7 +198,7 @@ public class Input implements Closeable{
 	 * @param s the String to be converted
 	 * @return the String s as an 'option-prompt'
 	 */
-	private static String string2option(String s) {
+	private static String stringToOption(String s) {
 		return "(" + s.substring(0, 1).toUpperCase() + ")" + s.substring(1);
 	}
 	
@@ -210,14 +210,14 @@ public class Input implements Closeable{
 	 * </pre>
 	 * @param options Strings that the option-suggestion String will be created from
 	 * @return the option overview String
-	 * @see #string2option(String)
+	 * @see #stringToOption(String)
 	 */
 	public static String concatOptions(List<String> options) {
 		if(options == null || options.isEmpty()) return "[]";
 		var sb = new StringBuilder();
 		sb.append("[");
 		for(var s: options) {
-			sb.append(string2option(s));
+			sb.append(stringToOption(s));
 			sb.append("/");
 		}
 		sb.setCharAt(sb.length()-1, ']');

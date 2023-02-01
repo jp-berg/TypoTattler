@@ -39,7 +39,7 @@ public class Checker {
  * @param word to check
  * @return true if word is the longest encountered yet, false otherwise
  */
-	private boolean ismax(String word) {
+	private boolean isMax(String word) {
 		if(maxwordlength < word.length()) {
 			maxwordlength = word.length();
 			return true;
@@ -57,7 +57,7 @@ private void file2dict(Reader in) throws IOException {
 		String word = null;
 		while((word = reader.readLine())!= null) {
 			this.dict.add(word.toLowerCase());
-			ismax(word);
+			isMax(word);
 		}
 		dlMatrix = new int[maxwordlength][maxwordlength];
 	} catch (IOException e) {
@@ -136,18 +136,18 @@ public Checker() throws IOException{
  * @param word the String to check
  * @return true if {@link #dict} contains word, false otherwise
  */
-public boolean ismistake(String word) {
+public boolean isMistake(String word) {
 	requireNonNull(word);
 	return !this.dict.contains(word.toLowerCase());
 }
 
 /**
- * Wrapper for {@link #ismistake(Mistake)}
+ * Wrapper for {@link #isMistake(Mistake)}
  * @param mistake the mistake to check
  * @return true if {@link #dict} does not contain {@link Mistake.wrongword}
  */
-public boolean ismistake(Mistake mistake) {
-	return this.ismistake(mistake.wrongword);
+public boolean isMistake(Mistake mistake) {
+	return this.isMistake(mistake.wrongword);
 }
 
 /**
@@ -181,7 +181,7 @@ public boolean addToUsrDict(String word) {
 public void add(String word) {
 	requireNonNull(word);
 	this.dict.add(word.toLowerCase());
-	if(this.ismax(word)) {
+	if(this.isMax(word)) {
 		dlMatrix = new int[maxwordlength][maxwordlength];
 	}
 }
