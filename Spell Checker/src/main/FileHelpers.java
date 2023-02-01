@@ -81,9 +81,10 @@ public final class FileHelpers {
 	/**
 	 * Joins one or more strings together while separating them with the file separator
 	 * of the current platform. The join preserves the order of the arguments.
+	 * Example: ("foo", "bar", "baz") -> "foo/bar/baz" (on Linux)
 	 * @param s1 the first string
 	 * @param strings the subsequent strings
-	 * @return
+	 * @return the Strings joined with the file separator dividing them
 	 */
 	public static String joinStrings(String s1, String ... strings) {
 		requireNonNull(s1);
@@ -98,9 +99,7 @@ public final class FileHelpers {
 		}
 		return sb.toString();
 	}
-
-	//https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-
+	
 	/**
 	 * Returns the config-file-directory according to the XDG Base Directory Specification.
 	 * @param appname the name of the program
@@ -147,7 +146,7 @@ public final class FileHelpers {
 
 	/**
 	 * Creates a XDG-Base-Directory-Specification-conforming path to an app-specific directory.
-	 * @param envName the name of the enviroment-variable that may store information over the desired XDG-path
+	 * @param envName the name of the environment-variable that may store information over the desired XDG-path
 	 * @param fallback the path that should be used, if envName is not set or empty
 	 * @param appname the name of the program
 	 * @return the XDG-Base-Directory-Specification-conforming path to an app-specific directory

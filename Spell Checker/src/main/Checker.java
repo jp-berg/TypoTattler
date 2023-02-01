@@ -1,3 +1,4 @@
+/* LICENSING MISSING */
 package main;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,15 +14,31 @@ import java.util.Comparator;
 import java.util.HashSet;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Class providing methods to tell if a word is a misspelling according to the underlying
+ * dictionary and to which words from the dictionary that misspelling is similar.
+ * @author Jan Philipp Berg
+ * @vers 0.2
+ *
+ */
 public class Checker {
 	
-	private final int initialdictlen = 150000;
+	/** Guess for the number of elements will contain, set to {@value}. */
+	private static final int initialdictlen = 150000;
+	/** Contains all the 'known' words */
 	private HashSet<String> dict = new HashSet<String>(initialdictlen);
+	/** User entries into the dictionary */
 	private File usrdict = null;
+	/** Length of the longest word in the dictionary. Used to create {@link #dlMatrix}. */
 	private int maxwordlength = -1;
+	/** The matrix used to calculate the edit-distance between two words*/
 	private int[][] dlMatrix;
 	
-
+/**
+ * Checks if word is the longest word in the dictionary.
+ * @param word to check
+ * @return true if word is the longest encountered yet, false otherwise
+ */
 	private boolean ismax(String word) {
 		if(maxwordlength < word.length()) {
 			maxwordlength = word.length();
@@ -29,7 +46,12 @@ public class Checker {
 		}
 			return false;
 	}	
-	
+
+	/**
+	 * Merges a file into {@link #dict} and updates {@link #maxwordlength}.
+	 * @param in a reader for the file containing the words to be merged into {@link #dict}
+	 * @throws IOException if the file cannot be read
+	 */
 private void file2dict(Reader in) throws IOException {
 	try (BufferedReader reader = new BufferedReader(in)){
 		String word = null;
@@ -43,6 +65,11 @@ private void file2dict(Reader in) throws IOException {
 	}
 }
 
+/**
+ * Wrapper for {@link #file2dict(Reader)}.
+ * @param file contains the words to be merged into {@link #dict}.
+ * @throws IOException if the file cannot be read
+ */
 private void file2dict(File file) throws IOException {
 	FileReader fr;
 	try {
@@ -53,6 +80,11 @@ private void file2dict(File file) throws IOException {
 	file2dict(fr);
 }
 
+/**
+ * Responsible for initializing {@link #usrdict}. The method will create the file, if it
+ * does not exists or merge the contained words into {@link #dict} if it does.
+ * @throws IOException Either if the file cannot be created or cannot be read
+ */
 private void loadUserDict() throws IOException {
 	Path dir = FileHelpers.getDataDir("TypoTattler");
 	usrdict = dir.resolve("usrdict.txt").toFile();
@@ -72,6 +104,11 @@ private void loadUserDict() throws IOException {
 	}
 }
 
+/**
+ * Constructor that initializes the class from a provided dictionary. 
+ * @param dictpath the path to the dictionary
+ * @throws IOException if there is a problem with reading dictpath or with creating/accessing the user dictionary
+ */
 public Checker(Path dictpath) throws IOException {
 	requireNonNull(dictpath);
 	
@@ -80,6 +117,11 @@ public Checker(Path dictpath) throws IOException {
 	loadUserDict();
 }
 
+/**
+ * Constructor that initializes the class from the dictionary embedded into the project.
+ * @throws IOException if there is a problem with accessing the embedded dictionary or with creating/accessing the user dictionary
+ * @see {@link resources.american-english-huge}
+ */
 public Checker() throws IOException{
 	String embeddedDict = "/resources/american-english-huge";
 	var tmp = getClass().getResourceAsStream(embeddedDict);
@@ -89,19 +131,39 @@ public Checker() throws IOException{
 	loadUserDict();
 }
 
+/**
+ * Checks if a String is a mistake according to the Strings saved in {@link #dict}.
+ * @param word the String to check
+ * @return true if {@link #dict} contains word, false otherwise
+ */
 public boolean ismistake(String word) {
 	requireNonNull(word);
 	return !this.dict.contains(word.toLowerCase());
 }
 
+/**
+ * Wrapper for {@link #ismistake(Mistake)}
+ * @param mistake the mistake to check
+ * @return true if {@link #dict} does not contain {@link Mistake.wrongword}
+ */
 public boolean ismistake(Mistake mistake) {
 	return this.ismistake(mistake.wrongword);
 }
 
+/**
+ * Wrapper for {@link #addToUsrDict(String)}
+ * @param m the word to be added to the user dictionary
+ * @return true if the word was appended, false if {@link #usrdict} was not writeable
+ */
 public boolean addToUsrDict(Mistake m) {
 	return addToUsrDict(m.wrongword);
 }
 
+/**
+ * Appends word to {@link #usrdict}
+ * @param word the word to be added to the user dictionary
+ * @return true if the word was appended, false if {@link #usrdict} was not writeable
+ */
 public boolean addToUsrDict(String word) {
 	requireNonNull(word);
 	try(BufferedWriter bw = new BufferedWriter(new FileWriter(usrdict, true))){
@@ -112,6 +174,10 @@ public boolean addToUsrDict(String word) {
 	return true;
 }
 
+/**
+ * Adds word to {@link #dict}. Resizes {@link #dlMatrix} if necessary.
+ * @param word the word to be added to the dictionary
+ */
 public void add(String word) {
 	requireNonNull(word);
 	this.dict.add(word.toLowerCase());
@@ -120,6 +186,11 @@ public void add(String word) {
 	}
 }
 
+/**
+ * Provides a list of Strings from {@link #dict} that are most similar to s.
+ * @param s the String that will be checked for similarities with the words from {@link #dict}
+ * @return a list of Strings similar to s (to a maximum of 10), sorted by ther
+ */
 public String[] guess(String s){
 	requireNonNull(s);
 	s.toLowerCase();
@@ -136,10 +207,29 @@ public String[] guess(String s){
 	return guesses;
 }
 
+/**
+ * Wrapper for {@link #DLdist(char[], char[])}
+ * @param s1 the first word
+ * @param s2 the second word
+ * @return the Damerau-Levenshtein distance between s1, s2
+ */
 private int DLdist(String s1, String s2) {
 	return DLdist(s1.toCharArray(), s2.toCharArray());
 }
 
+//https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+
+/**
+ * Computes the Damerau-Levenshtein distance between the words c1 and c2 and shows how
+ * closely related the two words are (e.g. how many single-character-editing steps are
+ * needed to turn c1 into c2 and vice versa).
+ * The algorithm is a translation from the corresponding Wikipedia-article.
+ * @param c1
+ * @param c2
+ * @return
+ * @see <a href="https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance">
+	 * Damerau–Levenshtein distance</a>
+ */
 private int DLdist(char[] c1, char[] c2) {
 	
 	final int height = c1.length +1;

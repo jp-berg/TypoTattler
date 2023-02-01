@@ -31,7 +31,7 @@ public class TypoTattler {
 	 * Installed dictionaries are preferred, because it is more likely that they reflect
 	 * the users idea of what a dictionary should contain (or in what language). The embedded
 	 * dictionary is a crutch in case those files are inaccessible, but it is unlikely that 
-	 * this is the best choice for every user ('american-english-hughe' as of version 0.2).
+	 * this is the best choice for every user ('american-english-huge' as of version 0.2).
 	 * @return an initialized dictionary
 	 * @throws IOException if none of the dictionaries can be found or they are inaccessible
 	 */
