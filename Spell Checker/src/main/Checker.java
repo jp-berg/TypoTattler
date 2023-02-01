@@ -72,7 +72,7 @@ private void loadUserDict() throws IOException {
 	}
 }
 
-Checker(Path dictpath) throws IOException {
+public Checker(Path dictpath) throws IOException {
 	requireNonNull(dictpath);
 	
 	File dictfile = dictpath.toFile();
@@ -80,7 +80,7 @@ Checker(Path dictpath) throws IOException {
 	loadUserDict();
 }
 
-Checker() throws IOException{
+public Checker() throws IOException{
 	String embeddedDict = "/resources/american-english-huge";
 	var tmp = getClass().getResourceAsStream(embeddedDict);
 	if(tmp == null) throw new FileNotFoundException("Embedded dictionary not found: " + embeddedDict);
