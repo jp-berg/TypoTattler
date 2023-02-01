@@ -34,30 +34,30 @@ import static java.util.Objects.requireNonNull;
  *
  */
 public class Input implements Closeable{
-	
+
 	/** the Scanner this instance of this class operates on*/
 	private Scanner scanner;
-	
+
 	/** Facilitates asking of simple yes/no-questions*/
 	public static final List<String> yesNo = List.of("Yes", "No");
 	/** Facilitates asking of simple yes/no-questions with the additional option to 
 	 * cancel the dialogue.
 	 */
 	public static final List<String> yesNoCancel = List.of("Yes", "No", "Cancel"); 
-	
+
 	/**
 	 * Constructor that takes a source for the input-stream.
 	 * @param source the input-stream this instance of {@link main.Input} should operate on.
 	 */
 	Input(InputStream source){
-		 scanner = new Scanner(source);
+		scanner = new Scanner(source);
 	}
-	
+
 	/** Constructor that initializes the scanner with the standard input stream.*/
 	Input(){
 		this(System.in);
 	}
-	
+
 	/**
 	 * Reads a line and parses an Integer from that line. Loops this process until it
 	 * actually reads an Integer.
@@ -77,10 +77,10 @@ public class Input implements Closeable{
 			}
 			break;
 		}while(true);
-			
+
 		return res;
 	}
-	
+
 	/**
 	 * Gets an Integer from {@link #readInt()} and checks if the Integer is part of answers.
 	 * Loops until it finds an Integer matching the criteria.
@@ -93,7 +93,7 @@ public class Input implements Closeable{
 		if(answers.isEmpty()) {
 			throw new IllegalArgumentException("List with allowed answers is empty");
 		}
-		
+
 		int answer;
 		answer = this.readInt();
 		while(!answers.contains(answer)) {
@@ -102,7 +102,7 @@ public class Input implements Closeable{
 		}
 		return answer;
 	}
-	
+
 	/**
 	 * Gets an Integer from {@link #readInt()} and checks if the Integer i is bigger than
 	 * start and smaller than end. Loops until it finds an Integer matching the criteria.
@@ -123,7 +123,7 @@ public class Input implements Closeable{
 		}
 		return answer;
 	}
-	
+
 	/**
 	 * Wrapper for {@link #readInt(List)}. Prints the prompt to the standard output
 	 * before calling {@link #readInt(List)}.
@@ -135,7 +135,7 @@ public class Input implements Closeable{
 		System.out.println(prompt);
 		return this.readInt(answers);
 	}
-	
+
 	/**
 	 * Wrapper for {@link #readInt(int, int)}. Prints the prompt to the standard output
 	 * before calling {@link #readInt(int, int)}.
@@ -148,7 +148,7 @@ public class Input implements Closeable{
 		System.out.println(prompt);
 		return this.readInt(start, end);
 	}
-	
+
 	/**
 	 * Reads a char from the {@link #scanner} and converts it to lower case.
 	 * @return The char that was read
@@ -157,7 +157,7 @@ public class Input implements Closeable{
 		Character res = scanner.next().charAt(0);
 		return Character.toLowerCase(res);
 	}
-	
+
 	/**
 	 * Prints the prompt to the standard output, before invoking {@link #getC()}
 	 * @param prompt the prompt to appear on the standard output
@@ -167,7 +167,7 @@ public class Input implements Closeable{
 		System.out.print(prompt);
 		return this.getC();
 	}
-	
+
 	/**
 	 * Reads a char from the {@link #scanner} and converts it to lower case. It then
 	 * tries to find it in answers. If there is no match it waits for the next char
@@ -182,7 +182,7 @@ public class Input implements Closeable{
 		if(answers.isEmpty()) {
 			throw new IllegalArgumentException("List with allowed answers is empty");
 		}
-		
+
 		Character answer;
 		answer = this.getC();
 		while(!answers.contains(answer)) {
@@ -191,7 +191,7 @@ public class Input implements Closeable{
 		}
 		return answer;
 	}
-	
+
 	/**
 	 * Wrapper for {@link #getC(List)}. Prints the prompt to the standard output, before
 	 * invoking {@link #getC(List)}.
@@ -203,7 +203,7 @@ public class Input implements Closeable{
 		System.out.print(prompt);
 		return this.getC(answers);
 	}
-	
+
 	/**
 	 * Converts a normal String to an 'option-prompt'-String, e.g.
 	 *<pre>
@@ -217,7 +217,7 @@ public class Input implements Closeable{
 	private static String stringToOption(String s) {
 		return "(" + s.substring(0, 1).toUpperCase() + ")" + s.substring(1);
 	}
-	
+
 	/**
 	 * Creates an option overview String from multiple Strings, e.g.
 	 * <pre>
@@ -239,7 +239,7 @@ public class Input implements Closeable{
 		sb.setCharAt(sb.length()-1, ']');
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Gathers the first letter of every String contained in options in a List. This List
 	 * will be sorted alphabetically.
@@ -255,14 +255,14 @@ public class Input implements Closeable{
 				.distinct()
 				.sorted()
 				.collect(Collectors.toCollection(ArrayList::new));
-		
+
 		if(l.size() != options.size()) {
 			throw new IllegalArgumentException(
 					"Two options start with the same letter");
 		}
 		return l;
 	}
-	
+
 	/**
 	 * Wrapper for {@link #getChar(List)}. Prints the prompt to the standard output
 	 * before calling {@link #getChar(List)}.
@@ -280,7 +280,7 @@ public class Input implements Closeable{
 		System.out.print(prompt);
 		return getChar(options);
 	}
-	
+
 	/**
 	 * Wrapper for {@link #getChar(List)}.
 	 * @param options the Strings describing the options. Every first letter must be unique.
@@ -291,7 +291,7 @@ public class Input implements Closeable{
 	public Character getChar(String ...options) {
 		return getChar(Arrays.asList(options));
 	}
-	
+
 	/**
 	 * Generates an option overview from options and uses {@link #getC(String, List)} to
 	 * get a char that matches one of the first letters of the Strings in options.
@@ -303,10 +303,10 @@ public class Input implements Closeable{
 	public Character getChar(List<String> options) {
 		requireNonNull(options);
 		if(options.isEmpty()) throw new IllegalArgumentException("list is empty");
-		
+
 		return getC(concatOptions(options), gatherFirstLetters(options));
 	}
-	
+
 	/**
 	 * Reads the next line from {@link #scanner}.
 	 * @return the line read from {@link #scanner}
@@ -315,7 +315,7 @@ public class Input implements Closeable{
 		String res = scanner.next();
 		return res;
 	}
-	
+
 	/**
 	 * Wrapper for {@link #getS()}. Prints the prompt to the standard output
 	 * before calling {@link #getS()}.
@@ -326,10 +326,10 @@ public class Input implements Closeable{
 		System.out.print(prompt);
 		return this.getS();
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		scanner.close();
-		
+
 	}
 }

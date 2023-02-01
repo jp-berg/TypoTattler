@@ -34,7 +34,7 @@ public final class FileHelpers {
 
 	private static final Pattern detectNameCounter = 
 			Pattern.compile("\\(\\d+\\) *?$"); // ( + any number + ) + any whitespace + end of string
-	
+
 	/**
 	 * 'Increments' the name of a file, eg. 
 	 * <pre>
@@ -54,15 +54,15 @@ public final class FileHelpers {
 			name = name.substring(0, m.start());
 			int i = Integer.parseInt(num) +1;
 			name = name + "(" + i + ")";
-			
+
 		} else {
 			name = name + "(1)";
 		}
-		
+
 		return name;
-		
+
 	}
-	
+
 	/**
 	 * If the provided path leads to a file that already exists, this function will
 	 * generate a new name for the file with {@link main.FileHelpers#incrName(String)}
@@ -81,19 +81,19 @@ public final class FileHelpers {
 			extention = filename.substring(i, filename.length());
 			filename = filename.substring(0, i);
 		}
-		
+
 		do {
 			filename = incrName(filename);
 			path = path.resolveSibling(filename + extention);
 		}while(Files.exists(path));
-		
+
 		return path;
 
 	}
-	
+
 	/** The file separator of the current platform */
 	private static final String FSEP = System.getProperty("file.separator");
-	
+
 	/**
 	 * Returns the config-file-directory according to the XDG Base Directory Specification.
 	 * @param appname the name of the program
@@ -126,7 +126,7 @@ public final class FileHelpers {
 	public static Path getStateDir(String appname) {
 		return getXDGDir("XDG_STATE_HOME", String.join(FSEP, ".local", "state"), appname);
 	}
-	
+
 	/**
 	 * Returns the cache-file-directory according to the XDG Base Directory Specification.
 	 * @param appname the name of the program
@@ -152,7 +152,7 @@ public final class FileHelpers {
 		String xdgpath = System.getenv(envName);
 		Path path;
 		if(xdgpath == null || xdgpath.isBlank() || xdgpath.isEmpty() || !xdgpath.startsWith("/")) {
-			 path = Path.of(System.getProperty("user.home"), fallback, appname);
+			path = Path.of(System.getProperty("user.home"), fallback, appname);
 		} else {
 			path = Path.of(xdgpath).resolve(appname);
 		}

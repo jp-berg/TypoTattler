@@ -30,15 +30,15 @@ import java.util.List;
  *
  */
 public class TypoTattler {
-	
+
 	/** The parser that will analyze the file.*/
 	private Parser p;
 	/** The class used to communicate with the user*/
 	private final Input in;
 	/** The path to the file in need of correction*/
 	private Path toEdit;
-	
-	
+
+
 	/**
 	 * Initializes the {@link main.Checker} if there was no dictionary provided with the
 	 * command line arguments or if the provided dictionary was invalid. The method tries
@@ -67,14 +67,14 @@ public class TypoTattler {
 			try {
 				checker = new Checker(WORDPATH2);
 			} catch(FileNotFoundException e) {
-				
+
 				String errmsg = String.format(
-				"""
-				words'-file not accessible under '%s' or '%s'. 
-				Please check if files are available and have the right permissions.
-				Some IDE-launched JVMs may have trouble accessing those files.
-				""", WORDPATH1, WORDPATH2);
-				
+						"""
+								words'-file not accessible under '%s' or '%s'. 
+								Please check if files are available and have the right permissions.
+								Some IDE-launched JVMs may have trouble accessing those files.
+								""", WORDPATH1, WORDPATH2);
+
 				System.err.print(errmsg);
 				checker = null;
 			}
@@ -87,7 +87,7 @@ public class TypoTattler {
 
 		return checker;
 	}
-	
+
 	/**
 	 * Constructor. Validates the command line arguments and tries to
 	 * handle errors.
@@ -97,12 +97,12 @@ public class TypoTattler {
 	public TypoTattler(String[] args) throws IOException {
 		if(args.length < 1 && args.length > 2) {
 			throw new IllegalArgumentException("Unexpected number of arguments"); 
-		 }
-		
+		}
+
 		args[0] = FileHelpers.expandUser(args[0]);
 		toEdit = Paths.get(args[0]);
 		Checker checker = null;
-		
+
 		if(args.length == 2) {
 			args[1]  = FileHelpers.expandUser(args[1]);
 			Path dict = Paths.get(args[1]);
@@ -114,18 +114,18 @@ public class TypoTattler {
 				checker = null;
 			}
 		}
-		
+
 		if(checker == null) checker = initChecker();
-		
+
 		p = new Parser(toEdit, checker);
 		in = new Input();
 	}
-	
+
 	/** The {@link main.Mistake} to be analyzed and edited by the user*/
 	private Mistake current = null;
 	/** Controls the loop in {@link #mainloop()}. Must only be modified by {@link #exit()}*/
 	private boolean noExit = true;
-	
+
 	/**
 	 * Iterates through the text {@link main.Mistake} by {@link main.Mistake} guided by
 	 * user input, offering various operations for correcting them.
@@ -138,32 +138,32 @@ public class TypoTattler {
 		final List<Character> possibleAnswers = Input.gatherFirstLetters(options);
 		System.out.println(OPTIONS);
 		next();
-		
+
 		char c;
-			while(noExit) {
-				c = in.getC(possibleAnswers);
-				switch (c) {
-				case 'e' -> exit();
-				case 'a' -> addToDict();
-				case 'i' -> ignore();
-				case 'n' -> next();
-				case 'p' -> previous();
-				case 'r' -> revision();
-				case 's' -> suggestion();
-				case 'c' -> System.out.println(p.context(current));
-				case 'o' -> System.out.println(OPTIONS);
-				case 'g' -> goToLine();
-				}
+		while(noExit) {
+			c = in.getC(possibleAnswers);
+			switch (c) {
+			case 'e' -> exit();
+			case 'a' -> addToDict();
+			case 'i' -> ignore();
+			case 'n' -> next();
+			case 'p' -> previous();
+			case 'r' -> revision();
+			case 's' -> suggestion();
+			case 'c' -> System.out.println(p.context(current));
+			case 'o' -> System.out.println(OPTIONS);
+			case 'g' -> goToLine();
 			}
+		}
 	}
-	
+
 	/** {@value} */
 	private static final String CANCELTEXT = "Cancelled - New command:";
 	/** Set only by {@link #replace(Mistake, String)} it tells {@link #exit()} whether
 	 * {@link #toEdit} has to be saved to disk because the file has been edited.
 	 */
 	private boolean writeToDisk = false;
-	
+
 	/**
 	 * Gets the next valid mistake and saves it in {@link TypoTattler#current}
 	 * if available, otherwise (when reaching the end of the file {@link TypoTattler#toEdit})
@@ -179,7 +179,7 @@ public class TypoTattler {
 			exit();
 		}
 	}
-	
+
 	/**
 	 * Gets the previous valid mistake and saves it in {@link TypoTattler#current}
 	 * if available, otherwise (when reaching the beginning of the file {@link TypoTattler#toEdit}) 
@@ -194,7 +194,7 @@ public class TypoTattler {
 			System.out.println("Reached start of file.");
 		}
 	}
-	
+
 	/**
 	 * Adds the misspelling in {@link TypoTattler#current} the dictionary of the
 	 * user and invokes {@link TypoTattler#ignore()}
@@ -211,7 +211,7 @@ public class TypoTattler {
 		};
 		ignore();
 	}
-	
+
 	/**
 	 * Invalidates all {@link main.Mistake} containing the same misspelling.
 	 * @throws IOException @see {@link TypoTattler#exit()}
@@ -220,7 +220,7 @@ public class TypoTattler {
 		p.ignore(current);
 		next();
 	}
-	
+
 	/**
 	 * Gets called, if the end of the file has been reached or via direct request from
 	 * the user. Breaks the loop in {@link TypoTattler#mainloop()}, saves the
@@ -236,7 +236,7 @@ public class TypoTattler {
 			in.close();
 		}
 	}
-	
+
 	/**
 	 *Provides a dialogue in which the user can enter a correction to the misspelling in
 	 *{@link TypoTattler#current}. 
@@ -260,7 +260,7 @@ public class TypoTattler {
 		}
 		this.replace(current, correction);
 	}
-	
+
 	/**
 	 * Presents the user with replacement options for the misspelling in {@link #current}.
 	 * These options are generated by {@link main.Checker#guess(String)}. The user is
@@ -273,15 +273,15 @@ public class TypoTattler {
 		System.out.print("(0) - Cancel || ");
 		current.printSuggestions();
 		int suggestion = in.readInt(0 , current.suggestions.length);
-		
+
 		if(suggestion != 0) {
 			this.replace(current, current.suggestions[suggestion-1]);
 			return;
 		}
-		
+
 		System.out.println(CANCELTEXT);
 	}
-	
+
 	/**
 	 * Inserts the first {@link main.Mistake} following the beginning of the line
 	 * corresponding to the user-provided number into {@link #current}
@@ -297,16 +297,16 @@ public class TypoTattler {
 			current = m;
 			System.out.println(current);
 		}
-		
+
 	}
-	
+
 	/** {@value} */
 	private static final String errmsg_replace = 
 			"""
-			Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
-			'%s' was not found in the recorded line in the following cases:
-			""" 
-			+ System.lineSeparator();
+					Error: Mismatch between the line number recorded for the mistake and the actual line. The mistake
+					'%s' was not found in the recorded line in the following cases:
+					""" 
+					+ System.lineSeparator();
 
 	/**
 	 * Replaces the mistake with a user provided alternative. If the misspelling cannot
@@ -319,11 +319,11 @@ public class TypoTattler {
 	private void replace(Mistake current, String replacement) throws IOException {
 		char c = 'n';
 		List<String> failed = null;
-		
+
 		if(current.next != null) {
 			c = in.getChar(current.wrongword + " was found more than once. Replace all? ", Input.yesNoCancel);
 		}
-		
+
 		if(c == 'y') {
 			failed = p.replaceAll(current, replacement);
 		}else if (c == 'n'){
@@ -333,7 +333,7 @@ public class TypoTattler {
 			System.out.println(CANCELTEXT);
 			return;
 		}
-		
+
 		if(failed != null) {
 			System.err.println(errmsg_replace);
 			for(var element: failed) {
@@ -346,45 +346,45 @@ public class TypoTattler {
 			return;
 		}
 	}
-	
+
 	/**
 	 * Writes the modified file (if desired by the user). Detects name collisions with
 	 * existing files and offers new names to avoid overwriting existing files.
 	 */
 	private void w2d() {
-		
+
 		boolean correctpath = true;
 		Path path = FileHelpers.avoidNameCollision(toEdit);
 		String tmpstr = String.format("File was modified. It will be saved as '%s'", path);
 		char c = in.getChar(tmpstr, Input.yesNo);
-		
+
 		if(c == 'y') {
 			correctpath = p.writeToDisk(path);
 		}
 		if(c == 'n' || !correctpath) {
-			
+
 			do {
-					if(!correctpath) System.out.printf("Invalid path: %s" + System.lineSeparator(), path);
-					
-					tmpstr  = in.getS("Please enter a new path:");
-					tmpstr = FileHelpers.expandUser(tmpstr);
-					path = Paths.get(tmpstr);
-					
-					if(Files.exists(path)) {
-						Path tmpPath = FileHelpers.avoidNameCollision(path);
-						String prompt = String.format("File '%s' already exists. ", tmpstr);
-						var options = List.of("Enter new name",
-								"Rename to '" + tmpPath.getFileName() + "'", 
-								"Overwrite");
-						c = in.getChar(prompt, options);
-						
-						switch(c) {
-						case 'e': continue;
-						case 'r': path = tmpPath;break;
-						case 'o':break;
-						}
+				if(!correctpath) System.out.printf("Invalid path: %s" + System.lineSeparator(), path);
+
+				tmpstr  = in.getS("Please enter a new path:");
+				tmpstr = FileHelpers.expandUser(tmpstr);
+				path = Paths.get(tmpstr);
+
+				if(Files.exists(path)) {
+					Path tmpPath = FileHelpers.avoidNameCollision(path);
+					String prompt = String.format("File '%s' already exists. ", tmpstr);
+					var options = List.of("Enter new name",
+							"Rename to '" + tmpPath.getFileName() + "'", 
+							"Overwrite");
+					c = in.getChar(prompt, options);
+
+					switch(c) {
+					case 'e': continue;
+					case 'r': path = tmpPath;break;
+					case 'o':break;
 					}
-					correctpath = p.writeToDisk(path);
+				}
+				correctpath = p.writeToDisk(path);
 			}while(!correctpath);
 		}
 	}

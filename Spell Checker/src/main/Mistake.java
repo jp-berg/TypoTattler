@@ -28,31 +28,31 @@ import static java.util.Objects.requireNonNull;
  *
  */
 public class Mistake implements Comparable<Mistake> {
-	
+
 	/** The word containing the mistake */
 	public String wrongword; 
-	
+
 	/** A reference to the {@link main.Parser}, that identified the mistake.*/
 	public Parser origin;
-	
+
 	/** The line number from the original text file the mistake was found at */
 	public int lineno; 
-	
+
 	/** The most similar words {@link main.Checker} could find */
 	public String[] suggestions; 
-	
+
 	/** true if the original word started with an uppercase */
 	public boolean uppercase;
-	
+
 	/** Points to the next mistake for a word written in the same way as this word */
 	public Mistake next = null;
-	
+
 	/**If the user decides that the spelling of wrongword was not an error this is set to
 	 * false 
 	 */
 	public boolean valid = true; 
-	
-	
+
+
 	/**
 	 * Constructor. Creates a new mistake based on the {@link main.Parser}, the line
 	 * number the mistake was found on and the spelling of the mistake.
@@ -68,7 +68,7 @@ public class Mistake implements Comparable<Mistake> {
 		suggestions = null;
 		uppercase = Character.isUpperCase(wrongword.charAt(0));
 	}
-	
+
 	/**
 	 * Generates {@link main.Mistake#suggestions} this mistake based on similarities with other words from
 	 * the dictionary. The suggestions are passed on to similar mistakes to avoid reprocessing.
@@ -87,7 +87,7 @@ public class Mistake implements Comparable<Mistake> {
 						+ suggestions[i].substring(1, suggestions[i].length());
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -102,7 +102,7 @@ public class Mistake implements Comparable<Mistake> {
 			m.suggestions = this.suggestions;
 		}
 	}
-	
+
 	/**
 	 * Prints the {@link main.Mistake#suggestions} for this mistake. If they are not
 	 * generated yet it tries to generate them.
@@ -121,7 +121,7 @@ public class Mistake implements Comparable<Mistake> {
 		}
 		System.out.println("No suggestions available.");
 		return false;
-		
+
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class Mistake implements Comparable<Mistake> {
 		}
 		while(m != null);
 	}
-	
+
 	@Override
 	public String toString() {
 		String s = ""; 

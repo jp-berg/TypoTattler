@@ -39,32 +39,32 @@ import static java.util.Objects.requireNonNull;
  *
  */
 public class Parser implements Iterator<Mistake>{
-	
+
 	/** File path to the file in need of correction */
 	public Path filepath;
-	
+
 	/** The class used to identify mistakes */
 	public Checker checker;
-	
+
 	/** The file from {@link #filepath} broken up into lines */
 	public ArrayList<String> lines;
-	
+
 	/** A list of the mistakes found in the order they occur in the text*/
 	private ArrayList<Mistake> mistakes;
-	
+
 	/** The total number of lines the file from {@link #filepath} contains */
 	private int lineno = 0;
-	
+
 	/** The number of the mistake the iterator currently is at*/
 	private int	mistakeno = -1;
-	
+
 	/** The line of the mistake the iterator currently is at*/
 	public int currentline = -1;
-	
+
 	/** The {@link main.Parser#noPunctuation}-regex-pattern in String-form*/
 	private final String noPunctuationRegex 
-						= "(?!\\b'\\b)\\p{Punct}|\\p{Space}|\\p{Cntrl}|\\p{Digit}";
-	
+	= "(?!\\b'\\b)\\p{Punct}|\\p{Space}|\\p{Cntrl}|\\p{Digit}";
+
 	/**The regex used to tokenize the file from {@link #filepath} into words.
 	 * Divides happen on the POSIX character classes for whitespace-, control-, digit-
 	 * and punctuation-characters. The latter excludes apostrophes between two word
@@ -82,9 +82,9 @@ public class Parser implements Iterator<Mistake>{
 	 * (//https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html)
 	 */
 	private final Pattern noPunctuation = Pattern.compile(noPunctuationRegex); 
-	
+
 	//https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
-	
+
 	/**
 	 * Constructor. Reads the text file and breaks it down into the individual words,
 	 * then checks them with {@link main.Checker} to identify unknown spellings.
@@ -102,7 +102,7 @@ public class Parser implements Iterator<Mistake>{
 		mistakes = new ArrayList<Mistake>(lines.size());
 		ArrayList<Mistake> tmp;
 		HashMap<String, Mistake> s2m = new HashMap<>(lines.size());
-		
+
 		for(String line: lines) {
 			tmp = noPunctuation.splitAsStream(line)
 					.filter(s -> s.length() > 0)
@@ -110,7 +110,7 @@ public class Parser implements Iterator<Mistake>{
 					.map(s -> new Mistake(this, lineno, s))
 					.map(m -> chainSameMistakes(m, s2m))
 					.collect(Collectors.toCollection(ArrayList::new));
-			
+
 			mistakes.addAll(tmp);
 			lineno++;
 		}
@@ -120,10 +120,10 @@ public class Parser implements Iterator<Mistake>{
 		mistakes.trimToSize();
 		filepath = path;
 		this.checker = checker;
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Constructor. Creates a new Checker using the parameterless constructor of {@link main.Checker}
 	 * @see main.Parser#Parser(Path, Checker)
@@ -133,7 +133,7 @@ public class Parser implements Iterator<Mistake>{
 	public Parser(Path path) throws IOException {
 		this(path, new Checker());
 	}
-	
+
 	/**
 	 * If this particular spelling of a word not contained in the dictionary has been
 	 * encountered before they will be linked to each other to facilitate ignoring
@@ -148,7 +148,7 @@ public class Parser implements Iterator<Mistake>{
 			s2m.get(s).next = m;
 			s2m.replace(s, m);
 		}
-		
+
 		return m;
 	}
 
@@ -169,7 +169,7 @@ public class Parser implements Iterator<Mistake>{
 	public Mistake next() {
 		return mistakes.get(mistakeno);
 	}
-	
+
 	/**
 	 * 
 	 * @return Returns true if there are valid mistakes behind the current position of the parser, false otherwise.
@@ -179,14 +179,14 @@ public class Parser implements Iterator<Mistake>{
 		while(mistakeno > 0 && !mistakes.get(mistakeno).valid) mistakeno--;
 		return mistakeno > 0;
 	}
-	
+
 	/**
 	 * @return the next mistake behind of the current position of the parser
 	 */
 	public Mistake previous() {
 		return mistakes.get(mistakeno--);
 	}
-	
+
 	/**
 	 * Replaces the spelling of the mistake with a replacement in the in-memory file
 	 * representation.
@@ -200,7 +200,7 @@ public class Parser implements Iterator<Mistake>{
 		if(!m.valid) return null;
 		String line = lines.get(m.lineno), word = m.wrongword;
 		if(m.uppercase) replacement.toUpperCase();
-		
+
 		if(line.contains(word)) {
 			lines.set(m.lineno, line.replace(word, replacement));
 			m.valid = false;
@@ -223,7 +223,7 @@ public class Parser implements Iterator<Mistake>{
 		var failedList = new ArrayList<String>();
 		String notFoundIn = null;
 		int lastLine = -1;
-		
+
 		do {
 			//The same mistake can occur multiple times in the same line, 
 			//but will be corrected the first time it is encountered
@@ -233,17 +233,17 @@ public class Parser implements Iterator<Mistake>{
 					failedList.add("" + current.lineno+1 + ": " + notFoundIn);
 				}
 			}
-			
+
 			lastLine = current.lineno;
 			current = current.next;
-		
+
 		}while(current != null);
-		
+
 		if(failedList.isEmpty()) return null;
 		return failedList;
-		
+
 	}
-	
+
 	/**
 	 * Provides (if available) the lines proceeding and following the line containing the
 	 * mistake and the line itself. Useful, when the line itself is not enough to decide
@@ -259,16 +259,16 @@ public class Parser implements Iterator<Mistake>{
 		if(i+1 < lines.size()) res = res + System.lineSeparator() + lines.get(i+1);
 		return res;
 	}
-	
+
 	/**
 	 * Wrapper for {@link #writeToDisk(Path)}. Passes {@link #filepath} to
 	 * the function and thus overwriting the original file with the corrected version.
 	 * @return true if the file was successfully written
 	 */
 	public boolean writeToDisk() {
-		 return writeToDisk(filepath);
+		return writeToDisk(filepath);
 	}
-	
+
 	/**
 	 * Writes the transformed version of the corrected file to the location specified in path.
 	 * @param path the location where the transformed version is supposed to be saved
@@ -286,7 +286,7 @@ public class Parser implements Iterator<Mistake>{
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Adds this mistake to the temporary dictionary and invalidates all future mistakes
 	 * with the same spelling.
@@ -296,9 +296,9 @@ public class Parser implements Iterator<Mistake>{
 		requireNonNull(m);
 		checker.add(m.wrongword);
 		m.invalidateAll();
-		
+
 	}
-	
+
 	/**
 	 * Moves the iterator to the next mistake starting from the specified line.
 	 * @param l the line number the iterator is supposed to be moved to
@@ -311,7 +311,7 @@ public class Parser implements Iterator<Mistake>{
 		}
 		mistakeno = binSearchMistakes(l);	
 	}
-	
+
 	/**
 	 * Uses binary search to return the number of the next mistake starting from line l.
 	 * @param l the line number the iterator is supposed to be moved to
@@ -330,10 +330,10 @@ public class Parser implements Iterator<Mistake>{
 				R = m;
 			}
 		}
-		
+
 		return L;
 	}
-	
-	
+
+
 
 }
