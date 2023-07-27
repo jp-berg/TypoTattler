@@ -70,7 +70,7 @@ public class TypoTattler {
 
 				String errmsg = String.format(
 						"""
-								words'-file not accessible under '%s' or '%s'. 
+								'words'-file not accessible under '%s' or '%s'.
 								Please check if files are available and have the right permissions.
 								Some IDE-launched JVMs may have trouble accessing those files.
 								""", WORDPATH1, WORDPATH2);

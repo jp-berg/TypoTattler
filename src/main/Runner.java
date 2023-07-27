@@ -34,9 +34,11 @@ public class Runner {
 							typotattler FILE [DICTIONARY]
 
 					DESCRIPTION
-							typotattler disassembles FILE into its individual words and checks them against the default wordlist or against a DICTIONARY if provided.
-							File should be a normal textfile. DICTIONARY should be a textfile consisting of one individual word per line. Operation is facilitated via
-							the keys shown in USAGE.
+							TypoTattler disassembles a textfile into its individual words and checks them against the default wordlist (or a dictionary if provided).
+							FILE should be a normal textfile. DICTIONARY should be a textfile consisting of one individual word per line. Operation is facilitated
+							via the keys shown in USAGE. If no dictionary is provided TypoTattler will look for the files `/usr/share/dict/words` and `/usr/dict/words`
+							to use as the wordlist. If those are not found, the program will use the embedded dictionary ('american-english-huge'). Note that the
+							program may have trouble finding the user dictionaries when being run from inside an IDE.
 
 					USAGE
 							n - Display the next valid mistake and (if not already shown) the full line the mistake belongs to.
