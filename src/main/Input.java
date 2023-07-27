@@ -111,13 +111,14 @@ public class Input implements Closeable{
 	 * @return the input that lies between start and end
 	 */
 	public int readInt(int start, int end) {
-		if(start >= end -1) {
-			throw new IllegalArgumentException("'start' must be smaller than 'end'-1");
+		if(start >= end) {
+			throw new IllegalArgumentException(String.format(
+					"'start' (%d) must be smaller than 'end' (%d)", start, end));
 		}
 		int answer;
 		answer = this.readInt();
-		while((start > answer && answer > end)) {
-			System.err.printf("Answer has to be between %d and %d (exclusive).%s", 
+		while((start > answer || answer > end)) {
+			System.err.printf("Answer has to be between %d and %d (inclusive).%s",
 					start, end, System.lineSeparator());
 			answer = this.readInt();
 		}
